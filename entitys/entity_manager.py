@@ -73,17 +73,17 @@ def update_pathgrid(target_name):
     path_grid[startZ, startY, startX] = "000"
     to_do = [(startZ, startY, startX)]
     while len(to_do)>0:
-        current_pos = to_do.pop(0)
-        current_dir = int(path_grid[current_pos])  
+        current_pos = to_do.pop(0) 
         for i in range(4):
-            next_pos = (startZ, int(current_pos[1]+ math.cos(math.radians(current_dir%360))), int(current_pos[2]+ math.sin(math.radians(current_dir%360))))
+            dir = (i*90)%360
+            if dir==270: dir=-90
+            next_pos = (startZ, int(current_pos[1]+ math.cos(math.radians(dir))), int(current_pos[2]+ math.sin(math.radians(dir))))
             try:
                 if path_grid[next_pos]=="QQQ":
-                    path_grid[next_pos] = current_dir%360
+                    path_grid[next_pos] = dir
                     to_do.append(next_pos)
             except:
                 pass
-            current_dir += 90
     return path_grid
 
 def order_draw_sequence():
