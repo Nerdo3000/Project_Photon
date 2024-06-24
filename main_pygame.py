@@ -1,24 +1,22 @@
-import logger
-logger.log("Session started!")
+import logger;                                  logger.log("Session started!")
 
-import map_generator; logger.log("Map Generated!")
-import pygame; logger.log("Pygame Import Successfull!")
-import tile_scripts as TS; logger.log("Tile Import Successfull!")
-import lists; logger.log("Lists Import Successfull!")
-import pygame_setup as setup; logger.log("Setup Successfull!")
+import map_generator;                           logger.log("Map Generated!")
+import pygame;                                  logger.log("Pygame Import Successfull!")
+import tile_scripts as TS;                      logger.log("Tile Import Successfull!")
+import lists;                                   logger.log("Lists Import Successfull!")
+import pygame_setup as setup;                   logger.log("Setup Successfull!")
 
 TILES = TS.TILES()
-lists.current_map = TILES.load_map()
-logger.log("Starting map data: " + str(lists.current_map))
-TILES.preload_tiles(lists.current_map)
-logger.log("Tiles Preloaded!")
+lists.current_map = TILES.load_map();           logger.log("Starting map data: " + str(lists.current_map))
+TILES.preload_tiles(lists.current_map);         logger.log("Tiles Preloaded!")
 
-import entitys.entity_manager as entitys; logger.log("Entity manager Import Successfull!")
 
-entitys.make_pathgrid(); logger.log("Pathgrid Generated!")
+import entitys.entity_manager as entitys;       logger.log("Entity manager Import Successfull!")
+
+entitys.make_pathgrid();                        logger.log("Pathgrid Generated!")
 entitys.tick_all()
 
-logger.log("Entering Main Loop!")
+pass;                                           logger.log("Entering Main Loop!")
 
 while setup.running:
     #pygame.draw.rect(setup.screen, (0,0,0), pygame.Rect(0, 0, setup.screen.get_width(), setup.screen.get_height()))
