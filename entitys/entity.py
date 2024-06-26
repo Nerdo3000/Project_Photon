@@ -18,7 +18,6 @@ class HUMANOID:
         if not self.vars.conditions.dead:
             self.update_and_reset()
 
-            self.vars.conditions.bool_stunned = ()
             if (self.vars.conditions.stunned <= 0) and(self.vars.conditions.throw_cooldown+2) <= 0 and (self.vars.conditions.sword_cooldown+4)<=0:
                 if self.vars.name == 'PLAYER':      self.PLAYER_controller()
                 if 'GUY' in self.vars.name:         self.AI_controller()
@@ -185,16 +184,21 @@ class HUMANOID:
             return owner
 
     def sword_hit(self):
+        if self.vars.conditions.exp_stunning_backoff>2: self.vars.conditions.exp_stunning_backoff -= 1
         collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox*3.5, self.vars.name, 'HUM')
         if collision and (lists.name_dict[name]).vars.conditions.sword_cooldown>0:
             atan2dir= (mthd.maths.atan3(lists.name_dict[name].vars.pos.x - self.vars.pos.x, lists.name_dict[name].vars.pos.y - self.vars.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)  
             if dir == 270: dir=-90
-            if (dir!=(lists.name_dict[name]).vars.dir) and self.vars.conditions.sword_cooldown<0:
-                self.vars.conditions.stunned = 20 - ((self.vars.conditions.ULTI_healing>0)*10)
-                if self.vars.conditions.invulenarbility < 0: self.vars.hp -= 1
+            if (dir!=(lists.name_dict[name]).vars.dir) and self.vars.conditions.sword_cooldown<0 and self.vars.conditions.invulenarbility<0:
+                self.vars.conditions.stunned = 15 - ((self.vars.conditions.ULTI_healing>0)*10) - self.vars.conditions.exp_stunning_backoff
+                damage = (4 - self.vars.conditions.exp_stunning_backoff)
+                if damage < 1 : damage = 1
+                print(damage)
+                self.vars.hp -= damage + ((lists.name_dict[name]).vars.conditions.dash_cooldown>30)*3
                 self.vars.conditions.velocity_dir.xy = (-mthd.maths.sin(atan2dir), mthd.maths.cos(atan2dir));     
-                self.vars.conditions.velocity_time = 20; self.vars.conditions.invulenarbility = 20
+                self.vars.conditions.velocity_time = 15; self.vars.conditions.invulenarbility = 15
+                self.vars.conditions.exp_stunning_backoff *= 2
                 self.vars.dir = int((((lists.name_dict[name]).vars.dir)+180)%360)
                 if self.vars.dir== 270: self.vars.dir=-90
             return name
@@ -247,9 +251,14 @@ class HUMANOID:
 
             self.move.y += self.vars.conditions.velocity_dir.y * self.vars.conditions.velocity_time ** 2 / 2 * setup.delta
             if self.move.y == 0:    self.vars.conditions.velocity_dir.xy = (self.vars.conditions.velocity_dir.x, 0)
-
-        self.vars.pos.x += self.move.x * int(ent.Collisions.n_colides(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox)) * int(ent.Collisions.hitbox(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox, self.vars.name))
-        self.vars.pos.y += self.move.y * int(ent.Collisions.n_colides(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox)) * int(ent.Collisions.hitbox(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox, self.vars.name))
+        
+        if self.vars.inputs.joystick.x!=0 or self.vars.inputs.joystick.y!=0: 
+            self.vars.dir = mthd.find_dir.find_direction__moved(self.vars.inputs.joystick.x, self.vars.inputs.joystick.y)
+        
+        hitboxX = ent.Collisions.hitbox(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox, self.vars.name)
+        hitboxY = ent.Collisions.hitbox(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox, self.vars.name)
+        self.vars.pos.x += self.move.x * int(ent.Collisions.n_colides(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox)) * int(hitboxX)
+        self.vars.pos.y += self.move.y * int(ent.Collisions.n_colides(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox)) * int(hitboxY)
 
     def humanoid_image(self): #(<PATH> + 'HUMANOID' + animation + dir + '.' + frame + '.png')
         """Finding the correct humanoid animation frame: Either Idle, throw, sword or walking. It also sets the head image."""
@@ -262,7 +271,6 @@ class HUMANOID:
         elif self.vars.conditions.velocity_time > 0:
             self.humanoid_img = 'HUMANOID' + "dash" + str(abs(self.vars.dir)) + '.' + str(0)
         else:
-            self.vars.dir = mthd.find_dir.find_direction__moved(self.vars.inputs.joystick.x, self.vars.inputs.joystick.y)
             self.humanoid_img = 'HUMANOID' + "walk" + str(abs(self.vars.dir)) + '.' + str(self.humanoid_frame)
         self.humanoid_img = ent.visuals.load_image((self.vars.IMG_PATH_body + self.humanoid_img), self.vars.dir == -90, False, self.vars.alpha_fade)
         self.head = ent.visuals.load_image((self.vars.IMG_PATH_head + str(self.vars.nick_name) + 'head' + str(abs(self.vars.dir))), self.vars.dir == -90, False, self.vars.alpha_fade)

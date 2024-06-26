@@ -16,7 +16,7 @@ def add_entitys():
     for i in range(0):
         add_entity(stats.var(stats.REDGUY_OP_lim, "REDGUY"+str(i), 0))
     for i in range(50):
-        add_entity(stats.var(stats.VIOGUY_basic_lim, "VIOGUY"+str(i), 0))
+        add_entity(stats.var(stats.VIOGUY_sword_lim, "VIOGUY"+str(i), 0))#VIOGUY_basic_lim
 
 def add_entity(values):
     lists.to_spawn_ent.append(values)
