@@ -23,6 +23,7 @@ class stats:
         self.player_OP_lim      =   ("PLAYER",  "P",        [],                             128,   1,                   ("wave",    True,   "CIRCLE"))
         self.player_OP_unlim    =   ("PLAYER",  "P",        [],                             128,   math.inf,            ("wave",    True,   "CIRCLE"))
         self.player_HEAL_lim    =   ("PLAYER",  "P",        [],                             128,   1,                   ("wave",    True,   "HEAL"))
+        self.player_HEAL_unlim  =   ("PLAYER",  "P",        [],                             128,   math.inf,            ("wave",    True,   "HEAL"))
         self.REDGUY_OP_lim      =   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   1,                   ("wave",    True,   False))
         self.REDGUY_basic_lim   =   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   1,                   ("one",     True,   False))
         self.REDGUY_basic_unlim =   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   math.inf,            ("one",     True,   False))
