@@ -12,6 +12,10 @@ class maths:
 
     def atan4(x, y):
         return (abs(math.degrees(math.atan2(y, x)) - 270) % 360 - 180) % 360
+    
+    def transform_direction(angle):
+        if angle > 180: return (180-(angle-180))*-1
+        else:   return angle
 
 class Position:
     def __init__(self, startX=0, startY=0):
