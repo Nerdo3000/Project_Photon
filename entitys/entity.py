@@ -103,14 +103,14 @@ class HUMANOID:
             collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox+6, self.vars.name, 'fireball')
             if collision and random.randint(1,3)!=1:
                 self.vars.dir = int((math.degrees((lists.name_dict[name]).vars.dir)-45)//90*90%360)
-                if self.vars.dir == 270: self.vars.dir=-90
+                self.vars.dir = mthd.maths.transform_direction(self.vars.dir)
                 self.vars.inputs.try_sword = True
                 return "r"
             return True
         if collision2 and random.randint(1,10)==1 and (name2 in self.target_name):  #MEELE
             atan2dir= (mthd.maths.atan3(lists.name_dict[name2].vars.pos.x - self.vars.pos.x, lists.name_dict[name2].vars.pos.y - self.vars.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)
-            if dir == 270: dir=-90
+            dir = mthd.maths.transform_direction(dir)
             self.vars.dir = int(dir)
             self.vars.inputs.try_sword = True
             return "r"
@@ -189,7 +189,8 @@ class HUMANOID:
         if collision and (lists.name_dict[name]).vars.conditions.sword_cooldown>0:
             atan2dir= (mthd.maths.atan3(lists.name_dict[name].vars.pos.x - self.vars.pos.x, lists.name_dict[name].vars.pos.y - self.vars.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)  
-            if dir == 270: dir=-90
+            dir = mthd.maths.transform_direction(dir)
+            #if dir == 270: dir=-90
             if (dir!=(lists.name_dict[name]).vars.dir) and self.vars.conditions.sword_cooldown<0 and self.vars.conditions.invulenarbility<0:
                 self.vars.conditions.stunned = 15 - ((self.vars.conditions.ULTI_healing>0)*10) - self.vars.conditions.exp_stunning_backoff
                 damage = (4 - self.vars.conditions.exp_stunning_backoff)
@@ -200,7 +201,7 @@ class HUMANOID:
                 self.vars.conditions.velocity_time = 15; self.vars.conditions.invulenarbility = 15
                 self.vars.conditions.exp_stunning_backoff *= 2
                 self.vars.dir = int((((lists.name_dict[name]).vars.dir)+180)%360)
-                if self.vars.dir== 270: self.vars.dir=-90
+                self.vars.dir = mthd.maths.transform_direction(self.vars.dir)
             return name
                 
     def draw(self):
