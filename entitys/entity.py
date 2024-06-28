@@ -12,9 +12,19 @@ class HUMANOID:
         """Initialisation of the Humanoid charakter. Setting up the Humanoids: speed, position, direction, Animitaion frame, Image and cooldown variables."""
         self.vars = ent.basic_entity_variables(start_modXY, move_speed = speed, hitbox = 8, name = name, nick=nick_name, target_Ent=target, weapon=weapons)
         self.type = "HUM"
-    
+
     def tick(self):
         """Ticks the humanoid: Moving the humanoid, fireball throwing and updating variables like the animation frame and cooldown variables."""
+        if lists.slow_motion:
+            if self.vars.name!="PLAYER": return
+            else:
+                if setup.mouse_keyboard.right_click: 
+                    setup.mouse_keyboard._wait = 30
+                    self.vars.pos.xy = setup.mouse_keyboard.mouse_custom_pos.xy
+                    self.vars.conditions.plop_animation = 0
+                    lists.slow_motion = False
+                    self.vars.hp += 2
+                return
         if not self.vars.conditions.dead:
             self.update_and_reset()
 
@@ -210,8 +220,12 @@ class HUMANOID:
         self.humanoid_image()
         if lists.slow_motion and self.vars.name == "PLAYER":
             img = (ent.visuals.load_image("img/ULTI_/teleporter"+str(setup.ticks%60)))
-            ent.visuals.blit(img, (self.vars.pos.x - 48), (self.vars.pos.y - 50))
+            ent.visuals.blit(img, (self.vars.pos.x - 48-2), (self.vars.pos.y - 50))
 
+        if self.vars.conditions.plop_animation<30:
+            a = (ent.visuals.load_image("img//ULTI_/plop" + str(int(self.vars.conditions.plop_animation))))
+            ent.visuals.blit(a,(self.vars.pos.x - 48), (self.vars.pos.y - 48))
+        self.vars.conditions.plop_animation += 2
 
         ent.visuals.blit(self.humanoid_img, (self.vars.pos.x - 48), (self.vars.pos.y - 48))
 

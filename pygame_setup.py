@@ -47,10 +47,6 @@ class _mouse_keyboard:
         if keys[pygame.K_p]:                        self.show_pathgrid = not(self.show_pathgrid)
         self.right_click = self.click[0]
 
-        if self.right_click and lists.slow_motion: 
-            lists.slow_motion = False
-            self._wait = 30
-            (lists.name_dict["PLAYER"]).vars.pos.xy = self.mouse_custom_pos.xy
         if self._wait>0: self.right_click = False
         self._wait -= 1
 

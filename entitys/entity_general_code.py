@@ -52,6 +52,7 @@ class Conditions:
         self.vamp_healing = 0
         self.ULTI_healing = 0
         self.exp_stunning_backoff = 1
+        self.plop_animation = math.inf
 
 class basic_entity_variables():
     def __init__(self, startpos=(0,0), move_speed=0, dir=0, hitbox=0, name="???", nick="", owner=None, target_Ent=None, weapon=()):

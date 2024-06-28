@@ -31,17 +31,18 @@ def try_summon_all():
                 if succes:   respawn_timer = 40;    lists.respawn_counter[i[0]] -= 1;   break
 
 def tick_all():
-    try_summon_all()
-    if (setup.ticks%10 == 9): 
-        pathgriders = []
-        for i in lists.alive_entitys:
-            if (lists.name_dict[i]).type == "HUM":
-                pathgriders.append(i)
-                if not i in lists.path_dict:
-                    layers = int(lists.current_map.shape[0])
-                    lists.path_dict[i]= layers
-                    lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, 23, 40))
-        update_pathgrids(pathgriders)
+    if not lists.slow_motion:
+        try_summon_all()
+        if (setup.ticks%10 == 9): 
+            pathgriders = []
+            for i in lists.alive_entitys:
+                if (lists.name_dict[i]).type == "HUM":
+                    pathgriders.append(i)
+                    if not i in lists.path_dict:
+                        layers = int(lists.current_map.shape[0])
+                        lists.path_dict[i]= layers
+                        lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, 23, 40))
+            update_pathgrids(pathgriders)
     for name in lists.alive_entitys:
         (lists.name_dict[name]).tick()
     global respawn_timer

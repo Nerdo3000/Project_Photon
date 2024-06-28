@@ -29,7 +29,7 @@ while setup.running:
     if "Quit" in str(events):
         setup.running = False
 
-    if not lists.slow_motion: entitys.tick_all()
+    entitys.tick_all()
     TILES.draw()
     
     setup.mouse_keyboard.update_mouse_keyboard()
