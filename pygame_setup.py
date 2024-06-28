@@ -1,5 +1,6 @@
 import pygame
 import extra_math as mthd
+import lists
 
 running = True
 delta = 0
@@ -26,6 +27,7 @@ class _mouse_keyboard:
         self.ULTIMATE_POWER = False 
         self.show_pathgrid = False
         self.joystick = mthd.Position()
+        self._wait = 0
 
     def update_mouse_keyboard(self):
         self.mouse_custom_pos.xy = tuple(pygame.mouse.get_pos())
@@ -44,6 +46,13 @@ class _mouse_keyboard:
         if keys[pygame.K_x]:                        self.ULTIMATE_POWER = True
         if keys[pygame.K_p]:                        self.show_pathgrid = not(self.show_pathgrid)
         self.right_click = self.click[0]
+
+        if self.right_click and lists.slow_motion: 
+            lists.slow_motion = False
+            self._wait = 30
+            (lists.name_dict["PLAYER"]).vars.pos.xy = self.mouse_custom_pos.xy
+        if self._wait>0: self.right_click = False
+        self._wait -= 1
 
     def draw_mouse(self):
         screen.blit(cursor_img, (self.mouse_custom_pos.x - 18, self.mouse_custom_pos.y - 18))

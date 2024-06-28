@@ -28,6 +28,9 @@ class HUMANOID:
                     entity_summoner.summon_CIRCLE(n=36, startXY=self.vars.pos.xy, owner=self.vars.name)
                 if self.vars.weapons.up=="HEAL": 
                     self.vars.conditions.ULTI_healing = 200
+                if self.vars.weapons.up=="TELE": 
+                    lists.slow_motion = True
+                    self.vars.conditions.ULTI_tp_counter = 0
 
             if self.vars.conditions.ball_dead and self.vars.inputs.try_throw_fireball:
                 if self.vars.weapons.fireball=="one":   self.vars.dir = entity_summoner.summon_fireball(self.vars.pos.xy, self.vars.inputs.fireball_target.xy, self.vars.inputs.throw_mod, owner=self.vars.name)
@@ -184,18 +187,15 @@ class HUMANOID:
             return owner
 
     def sword_hit(self):
-        if self.vars.conditions.exp_stunning_backoff>2: self.vars.conditions.exp_stunning_backoff -= 1
         collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox*3.5, self.vars.name, 'HUM')
         if collision and (lists.name_dict[name]).vars.conditions.sword_cooldown>0:
             atan2dir= (mthd.maths.atan3(lists.name_dict[name].vars.pos.x - self.vars.pos.x, lists.name_dict[name].vars.pos.y - self.vars.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)  
             dir = mthd.maths.transform_direction(dir)
-            #if dir == 270: dir=-90
             if (dir!=(lists.name_dict[name]).vars.dir) and self.vars.conditions.sword_cooldown<0 and self.vars.conditions.invulenarbility<0:
                 self.vars.conditions.stunned = 15 - ((self.vars.conditions.ULTI_healing>0)*10) - self.vars.conditions.exp_stunning_backoff
                 damage = (4 - self.vars.conditions.exp_stunning_backoff)
                 if damage < 1 : damage = 1
-                print(damage)
                 self.vars.hp -= damage + ((lists.name_dict[name]).vars.conditions.dash_cooldown>30)*3
                 self.vars.conditions.velocity_dir.xy = (-mthd.maths.sin(atan2dir), mthd.maths.cos(atan2dir));     
                 self.vars.conditions.velocity_time = 15; self.vars.conditions.invulenarbility = 15
@@ -203,10 +203,15 @@ class HUMANOID:
                 self.vars.dir = int((((lists.name_dict[name]).vars.dir)+180)%360)
                 self.vars.dir = mthd.maths.transform_direction(self.vars.dir)
             return name
+        if self.vars.conditions.exp_stunning_backoff>2: self.vars.conditions.exp_stunning_backoff -= 1
                 
     def draw(self):
         """Finding the correct animation frame and drawing it on screen."""
         self.humanoid_image()
+        if lists.slow_motion and self.vars.name == "PLAYER":
+            img = (ent.visuals.load_image("img/ULTI_/teleporter"+str(setup.ticks%60)))
+            ent.visuals.blit(img, (self.vars.pos.x - 48), (self.vars.pos.y - 50))
+
 
         ent.visuals.blit(self.humanoid_img, (self.vars.pos.x - 48), (self.vars.pos.y - 48))
 
@@ -237,7 +242,6 @@ class HUMANOID:
             a = (ent.visuals.load_image("img/icons_/ULTI_icon" + str(int(n))))
             ent.visuals.blit(a,(self.vars.pos.x - 4), (self.vars.pos.y - 54))
             #ent.visuals.blit(a,(self.vars.pos.x + 32), (self.vars.pos.y - 40))
-
 
     def movement(self):
         """Moving the humanoid in the correct way: controlling voluntry diagonal movement, involuntry movement, respective of the delta value and checking for collisions with the level."""
