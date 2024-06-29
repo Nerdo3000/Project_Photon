@@ -3,5 +3,7 @@ Credits:
   - Contribution: https://opengameart.org/content/tiny-adventure-pack (Player Character)
 - CodeManu (https://opengameart.org/users/codemanu)
   - Contribution: https://opengameart.org/content/free-pixel-effects-pack (Visual Effects)
-- O_LOBSTER ((https://o-lobster.itch.io/)
+- O_LOBSTER (https://o-lobster.itch.io/)
   - Contribution: https://o-lobster.itch.io/adventure-pack (Tileset)
+- 9KeyStudio (https://opengameart.org/users/9keystudio)
+  - Contribution: https://opengameart.org/content/pixel-art-explosion-animation (Explosion Animation)
