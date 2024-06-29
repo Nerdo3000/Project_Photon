@@ -49,6 +49,7 @@ class Conditions:
         self.blocked = 0
         self.counter_till_death = 0
         self.ULTI_cooldown = 0
+        self.max_ULTI_cooldown = 1
         self.vamp_healing = 0
         self.ULTI_healing = 0
         self.exp_stunning_backoff = 1

@@ -1,6 +1,7 @@
 import pygame
 import extra_math as mthd
 import lists
+import math
 
 running = True
 delta = 0
@@ -52,5 +53,12 @@ class _mouse_keyboard:
         self._wait -= 1
 
     def draw_mouse(self):
-        screen.blit(cursor_img, (self.mouse_custom_pos.x - 18, self.mouse_custom_pos.y - 18))
+        rot = False
+        for ent in lists.alive_entitys:
+            xy = (lists.name_dict[ent]).vars.pos.xy
+            dis = math.dist(xy, self.mouse_custom_pos.xy)
+            if dis < 25: rot = True
+        if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
+        else:       cursor_img_draw = cursor_img
+        screen.blit(cursor_img_draw, (self.mouse_custom_pos.x - 18, self.mouse_custom_pos.y - 18))
 mouse_keyboard = _mouse_keyboard()

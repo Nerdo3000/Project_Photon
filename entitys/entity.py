@@ -33,14 +33,18 @@ class HUMANOID:
                 if 'GUY' in self.vars.name:         self.AI_controller()
 
             if setup.mouse_keyboard.ULTIMATE_POWER and self.vars.conditions.ULTI_cooldown<0:
-                self.vars.conditions.ULTI_cooldown = 500
                 if self.vars.weapons.up=="CIRCLE": 
+                    self.vars.conditions.ULTI_cooldown = 500
+                    self.vars.conditions.max_ULTI_cooldown = 500
                     entity_summoner.summon_CIRCLE(n=36, startXY=self.vars.pos.xy, owner=self.vars.name)
                 if self.vars.weapons.up=="HEAL": 
+                    self.vars.conditions.ULTI_cooldown = 500
+                    self.vars.conditions.max_ULTI_cooldown = 500
                     self.vars.conditions.ULTI_healing = 200
                 if self.vars.weapons.up=="TELE": 
+                    self.vars.conditions.ULTI_cooldown = 200
+                    self.vars.conditions.max_ULTI_cooldown = 200
                     lists.slow_motion = True
-                    self.vars.conditions.ULTI_tp_counter = 0
 
             if self.vars.conditions.ball_dead and self.vars.inputs.try_throw_fireball:
                 if self.vars.weapons.fireball=="one":   self.vars.dir = entity_summoner.summon_fireball(self.vars.pos.xy, self.vars.inputs.fireball_target.xy, self.vars.inputs.throw_mod, owner=self.vars.name)
@@ -251,7 +255,7 @@ class HUMANOID:
         a = (ent.visuals.load_image("img/icons_/health_bar_empty"))
         ent.visuals.blit(a,(self.vars.pos.x - 24), (self.vars.pos.y - 40))
         if self.vars.name == "PLAYER":
-            n = (500 - self.vars.conditions.ULTI_cooldown)//62.5
+            n = (self.vars.conditions.max_ULTI_cooldown - self.vars.conditions.ULTI_cooldown)//(self.vars.conditions.max_ULTI_cooldown/8)
             if n>8: n = 8
             a = (ent.visuals.load_image("img/icons_/ULTI_icon" + str(int(n))))
             ent.visuals.blit(a,(self.vars.pos.x - 4), (self.vars.pos.y - 54))
