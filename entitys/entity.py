@@ -177,6 +177,9 @@ class HUMANOID:
                 self.vars.hp += 0.5
                 if self.vars.hp > self.vars.max_hp: self.vars.hp = self.vars.max_hp
                 self.vars.conditions.ULTI_healing -= 1
+        if setup.ticks%300==0:
+            self.vars.hp += 1
+            if self.vars.hp > self.vars.max_hp: self.vars.hp = self.vars.max_hp
 
     def ball_hit(self):
         "Code for detcting if a Humanoid is hit by a fireball and checking if they deflect it sucessfully."
