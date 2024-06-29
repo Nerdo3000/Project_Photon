@@ -7,7 +7,8 @@ delta = 0
 ticks = 0
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 736))
+window = pygame.display.set_mode((1280, 736))
+screen = pygame.Surface((1280, 736))
 icon = pygame.image.load("img/icons_/Project_Photon_icon.png")
 pygame.display.set_icon(icon)
 pygame.display.set_caption("Project Photon Prototype", "Project Photon")

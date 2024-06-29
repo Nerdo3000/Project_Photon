@@ -44,7 +44,14 @@ while setup.running:
     
     setup.mouse_keyboard.draw_mouse()
 
+    if lists.slow_motion:
+        old_screen = pygame.Surface.copy(setup.screen)
+        pygame.transform.grayscale(setup.screen, setup.screen)
+        setup.screen.blit(old_screen, (0,0), special_flags=pygame.BLEND_MAX)
+
+    setup.window.blit(setup.screen, (0,0))
     pygame.display.flip()
+
     setup.delta = setup.clock.tick(60) / 1000 #40 ticks per second ###New: 25 ticks per second
     setup.ticks += 1
     logger.log("Alive Entitys: " + str(lists.alive_entitys))

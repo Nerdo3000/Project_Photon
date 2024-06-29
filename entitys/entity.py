@@ -23,7 +23,7 @@ class HUMANOID:
                     self.vars.pos.xy = setup.mouse_keyboard.mouse_custom_pos.xy
                     self.vars.conditions.plop_animation = 0
                     lists.slow_motion = False
-                    self.vars.hp += 2
+                    if self.vars.hp <= 8: self.vars.hp += 2
                 return
         if not self.vars.conditions.dead:
             self.update_and_reset()
