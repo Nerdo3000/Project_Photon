@@ -319,7 +319,7 @@ class FIRE_BALL:
         self.vars.conditions.counter_till_death = 5
         self.image = pygame.transform.rotate(pygame.image.load('img/fireball_/fireball.png'), -dir)
         self.kill_timer = killtimer
-        self.size_mod = 0.3125*256/2
+        self.size_mod = 64
         self.damage = damage_mult
         self.unblock = unblock
 
@@ -340,7 +340,7 @@ class FIRE_BALL:
         if not self.vars.conditions.dead:                  setup.screen.blit(self.image, self.vars.pos.xy);     return
         elif not self.vars.conditions.animation_invisible: 
             image = ent.visuals.load_image('img/fireball_/explosion' + str(5 - int(self.vars.conditions.counter_till_death)))
-            ent.visuals.blit(image, (self.vars.pos.x - self.size_mod), (self.vars.pos.y - self.size_mod), 0.3125, self.death_dir)
+            ent.visuals.blit(image, (self.vars.pos.x - self.size_mod), (self.vars.pos.y - self.size_mod), 1.000001, self.death_dir)
 
 class entity_summoner:
     def summon_fireball__actual(n=0, posmod=(0,0), dir=0, speed=300, startXY=(0,0), owner="?", kill_timer=math.inf, optional_name="", damage_mult=1, unblock=False):
