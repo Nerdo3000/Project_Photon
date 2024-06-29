@@ -17,6 +17,8 @@ pygame.display.set_caption("Project Photon Prototype", "Project Photon")
 clock = pygame.time.Clock()
 pygame.mouse.set_visible(False)
 
+pause = False
+
 cursor_img = pygame.image.load('img/icons_/cursor.png')
 
 class _mouse_keyboard:
@@ -29,12 +31,14 @@ class _mouse_keyboard:
         self.ULTIMATE_POWER = False 
         self.show_pathgrid = False
         self.joystick = mthd.Position()
-        self._wait = 0
+        self.click_wait = 0
+        self.pause_wait = 0
 
     def update_mouse_keyboard(self):
         self.mouse_custom_pos.xy = tuple(pygame.mouse.get_pos())
         self.click = pygame.mouse.get_pressed()
         self.joystick = mthd.Position()
+        self.pause = False
         self.spacebar = False; self.shift = False; self.ULTIMATE_POWER=False
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] or keys[pygame.K_UP]:   self.joystick.y -= 1
@@ -46,11 +50,15 @@ class _mouse_keyboard:
         if keys[pygame.K_LSHIFT]:                   self.shift = True
         if keys[pygame.K_LESS]:                     self.shift = True
         if keys[pygame.K_x]:                        self.ULTIMATE_POWER = True
-        if keys[pygame.K_p]:                        self.show_pathgrid = not(self.show_pathgrid)
-        self.right_click = self.click[0]
+        if keys[pygame.K_NUMLOCK]:                  self.show_pathgrid = not(self.show_pathgrid)
 
-        if self._wait>0: self.right_click = False
-        self._wait -= 1
+        self.pause_wait -= 1
+        if self.pause_wait<0:
+            if keys[pygame.K_ESCAPE] or keys[pygame.K_p]: self.pause = True; self.pause_wait = 15
+
+        self.right_click = self.click[0]
+        if self.click_wait>0: self.right_click = False
+        self.click_wait -= 1
 
     def draw_mouse(self):
         rot = False

@@ -19,7 +19,7 @@ class HUMANOID:
             if self.vars.name!="PLAYER": return
             else:
                 if setup.mouse_keyboard.right_click: 
-                    setup.mouse_keyboard._wait = 30
+                    setup.mouse_keyboard.click_wait = 30
                     self.vars.pos.xy = setup.mouse_keyboard.mouse_custom_pos.xy
                     self.vars.conditions.plop_animation = 0
                     lists.slow_motion = False
