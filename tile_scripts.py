@@ -26,6 +26,8 @@ class TILES():
 
     def load_map(self):
         map = numpy.loadtxt("cmap_data.txt", comments='#>', dtype=str)
+        map = map[0:(23*2)]
+        
         map = map.reshape(2, 23, 40)
         return map
     

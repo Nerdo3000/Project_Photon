@@ -1,0 +1,15 @@
+{
+    "player": {
+    "stats" : "player_TELE_lim",
+    "amount": 1
+    },
+    "REDGUY": {
+    "stats" : "REDGUY_OP_lim",
+    "amount": 0
+    },
+    "VIOGUY": {
+    "stats" : "VIOGUY_sword_lim",
+    "amount": 50
+    },
+    "new_random_map":true
+}

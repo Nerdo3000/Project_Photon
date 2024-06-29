@@ -1,4 +1,5 @@
 import pygame
+import settings
 import pygame_setup as setup 
 import entitys.entity as entity
 import math
@@ -12,11 +13,12 @@ respawn_timer = 40*3
 stats = lists.stats()
 
 def add_entitys():
-    add_entity(stats.player_TELE_lim)
-    for i in range(0):
-        add_entity(stats.var(stats.REDGUY_OP_lim, "REDGUY"+str(i), 0))
-    for i in range(50):
-        add_entity(stats.var(stats.VIOGUY_sword_lim, "VIOGUY"+str(i), 0))#VIOGUY_basic_lim
+    for i in range(settings.player_amount):
+        add_entity(stats.stats_dict[settings.player_stats])
+    for i in range(settings.REDGUY_amount):
+        add_entity(stats.var(stats.stats_dict[settings.REDGUY_stats], "REDGUY"+str(i), 0))
+    for i in range(settings.VIOGUY_amount):
+        add_entity(stats.var(stats.stats_dict[settings.VIOGUY_stats], "VIOGUY"+str(i), 0))
 
 def add_entity(values):
     lists.to_spawn_ent.append(values)

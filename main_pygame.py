@@ -1,6 +1,7 @@
 import logger;                                  logger.log("Session started!")
+import settings
 
-import map_generator;                           logger.log("Map Generated!")
+if settings.new_random_map:import map_generator;logger.log("New Map Generated!")
 import pygame;                                  logger.log("Pygame Import Successfull!")
 import tile_scripts as TS;                      logger.log("Tile Import Successfull!")
 import lists;                                   logger.log("Lists Import Successfull!")
