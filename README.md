@@ -1,4 +1,4 @@
-This is a Game wich is currently still in development, information in this README may change. The Code-name of this Project is "Porject-Photon", there is no Title at the moment.
+This is a Game wich is currently still in development, information in this README may change. The Code-name of this Project is "Project-Photon", there is no Title at the moment.
 The Goal of this Game is to survive. Enemys will spawn in and try to kill you.
 
 Controls:
