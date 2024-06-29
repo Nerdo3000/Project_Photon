@@ -1,5 +1,5 @@
 import pygame
-import settings
+import log_set.settings as settings
 import pygame_setup as setup 
 import entitys.entity as entity
 import math

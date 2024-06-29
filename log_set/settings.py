@@ -8,7 +8,7 @@ VIOGUY_stats    = None
 VIOGUY_amount   = None
 new_random_map  = None
 
-with open("settings.json", "r") as file:
+with open("log_set/settings.json", "r") as file:
     settings = json.load(file)
 
 try:    player_stats    = settings["player"]["stats"]

@@ -1,5 +1,5 @@
-import logger;                                  logger.log("Session started!")
-import settings
+import log_set.logger as logger;    logger.log("Session started!")
+import log_set.settings as settings
 
 if settings.new_random_map:import map_generator;logger.log("New Map Generated!")
 import pygame;                                  logger.log("Pygame Import Successfull!")
