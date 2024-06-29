@@ -12,7 +12,7 @@ respawn_timer = 40*3
 stats = lists.stats()
 
 def add_entitys():
-    add_entity(stats.player_OP_lim)
+    add_entity(stats.player_TELE_lim)
     for i in range(0):
         add_entity(stats.var(stats.REDGUY_OP_lim, "REDGUY"+str(i), 0))
     for i in range(50):

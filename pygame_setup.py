@@ -60,5 +60,5 @@ class _mouse_keyboard:
             if dis < 25: rot = True
         if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
         else:       cursor_img_draw = cursor_img
-        screen.blit(cursor_img_draw, (self.mouse_custom_pos.x - 18, self.mouse_custom_pos.y - 18))
+        screen.blit(cursor_img_draw, (self.mouse_custom_pos.x - 18-(rot*9), self.mouse_custom_pos.y - 18-(rot*9)))
 mouse_keyboard = _mouse_keyboard()
