@@ -8,4 +8,4 @@ Controls:
 - X -> Activate Ultimat Abbility (ULTI)
 - Mouse -> Shooting Fireballs
 
-To change settings, open "log_set/settings.json".
+To change settings, open "settings.json".

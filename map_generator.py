@@ -18,7 +18,7 @@ map[1][0:, 0]  = "001"  #layer1, Line left, Y-axis
 map[1][0:, -1] = "001"  #layer1, line right, Y-axis
 
 
-with open("log_set/cmap_data.txt", "w") as data_file:
+with open("cmap_data.txt", "w") as data_file:
     for slice in map:
         numpy.savetxt(data_file, slice, fmt='%s')
         numpy.savetxt(data_file, ["#>break<#"], fmt='%s')

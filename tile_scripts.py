@@ -25,7 +25,7 @@ class TILES():
                     if img != None: setup.screen.blit(img, (x*32,y*32))
 
     def load_map(self):
-        map = numpy.loadtxt("log_set/cmap_data.txt", comments='#>', dtype=str)
+        map = numpy.loadtxt("cmap_data.txt", comments='#>', dtype=str)
         map = map[0:(23*2)]
         
         map = map.reshape(2, 23, 40)
@@ -33,7 +33,7 @@ class TILES():
     
     def deload_map(self):
         map = lists.current_map
-        with open("log_set/cmap_data.txt", "w") as data_file:
+        with open("cmap_data.txt", "w") as data_file:
             for slice in map:
                 numpy.savetxt(data_file, slice, fmt='%s')
                 numpy.savetxt(data_file, ["#>break<#"], fmt='%s')
