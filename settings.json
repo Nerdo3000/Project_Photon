@@ -5,11 +5,11 @@
     },
     "REDGUY": {
     "stats" : "REDGUY_OP_lim",
-    "amount": 0
+    "amount": 5
     },
     "VIOGUY": {
     "stats" : "VIOGUY_sword_lim",
-    "amount": 0
+    "amount": 50
     },
     "new_random_map":true
 }

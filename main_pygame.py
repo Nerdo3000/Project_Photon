@@ -49,42 +49,35 @@ def mode__normal():
             tmp_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width()/2)*2
         if tmp_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()/2)*2:
             tmp_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height()/2)*2
-        if (lists.name_dict["PLAYER"]).vars.conditions.plop_animation<30:
+        if (lists.name_dict["PLAYER"]).vars.conditions.plop_animation<60:
             old_cam_pos = setup.camera_pos
             new_cam_pos_x = tmp_cam_pos_x
             new_cam_pos_y = tmp_cam_pos_y
-            dir = (mthd.maths.atan3(new_cam_pos_x-old_cam_pos.x, old_cam_pos.y-new_cam_pos_y)-270) % 360
-            dir = mthd.maths.transform_direction(dir)
             dist = math.dist(old_cam_pos.xy, (new_cam_pos_x, new_cam_pos_y))
-            #print(dir)
+            if dist>0.5: 
+                dir = (mthd.maths.atan3(new_cam_pos_x-old_cam_pos.x, old_cam_pos.y-new_cam_pos_y)-270) % 360
+                dir = mthd.maths.transform_direction(dir)
 
-            x = math.sin(math.radians(dir))
-            y = math.cos(math.radians(dir))
+                x = math.sin(math.radians(dir))
+                y = math.cos(math.radians(dir))
 
-            new_cam_pos_x = setup.camera_pos.x
-            new_cam_pos_y = setup.camera_pos.y
+                new_cam_pos_x = setup.camera_pos.x
+                new_cam_pos_y = setup.camera_pos.y
 
-            change_x = math.copysign((abs(x*dist)**0.7), x)
-            change_y = math.copysign((abs(y*dist)**0.7), y)
-            print(dist,change_x) #x*dist/4
+                change_x = math.copysign((abs(x*dist)**0.6), x)
+                change_y = math.copysign((abs(y*dist)**0.6), y)
 
-            #"""
-            new_cam_pos_x += change_x
-            new_cam_pos_y += change_y
-            #"""
-            """
-            dif_x = new_cam_pos_x - old_cam_pos.x
-            new_cam_pos_x = setup.camera_pos.x
-            change = math.copysign((abs(dif_x)**0.7), dif_x)*x
-            if abs(change)<0.25: change=0
-            new_cam_pos_x += change
+                new_cam_pos_x += change_x
+                new_cam_pos_y += change_y
 
-            dif_y = new_cam_pos_y - old_cam_pos.y
-            new_cam_pos_y = setup.camera_pos.y
-            change = math.copysign((abs(dif_y)**0.7), dif_y)*y
-            if abs(change)<0.25: change=0
-            new_cam_pos_y += change
-            """
+                if new_cam_pos_x+(setup.screen.get_width()/2) < (setup.screen.get_width())/2:
+                    new_cam_pos_x = 0
+                if new_cam_pos_y+(setup.screen.get_height()/2) < (setup.screen.get_height())/2:
+                    new_cam_pos_y = 0
+                if new_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()/2)*2:
+                    new_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width()/2)*2
+                if new_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()/2)*2:
+                    new_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height()/2)*2
         else: 
             new_cam_pos_x = tmp_cam_pos_x
             new_cam_pos_y = tmp_cam_pos_y
