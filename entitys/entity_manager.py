@@ -8,7 +8,7 @@ import extra_math as mthd
 import lists
 import numpy
 
-respawn_timer = 40*3
+respawn_timer = setup.map_width*3
 
 stats = lists.stats()
 
@@ -30,7 +30,7 @@ def try_summon_all():
         for i in lists.to_spawn_ent:
             if lists.respawn_counter[i[0]]>0:
                 succes = try_summon(predifined_values=i)
-                if succes:   respawn_timer = 40;    lists.respawn_counter[i[0]] -= 1;   break
+                if succes:   respawn_timer = setup.map_width;    lists.respawn_counter[i[0]] -= 1;   break
 
 def tick_all():
     if not lists.slow_motion:
@@ -43,7 +43,7 @@ def tick_all():
                     if not i in lists.path_dict:
                         layers = int(lists.current_map.shape[0])
                         lists.path_dict[i]= layers
-                        lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, 23, 40))
+                        lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, setup.map_height, setup.map_width))
             update_pathgrids(pathgriders)
     for name in lists.alive_entitys:
         (lists.name_dict[name]).tick()
@@ -56,7 +56,7 @@ def draw_all():
         (lists.name_dict[name]).draw()
 
 def make_pathgrid():
-    lists.path_grid = numpy.full((1, 23, 40), "000")
+    lists.path_grid = numpy.full((1, setup.map_height, setup.map_width), "000")
     for y in range((lists.current_map.shape[1])):
         for x in range((lists.current_map.shape[2])):
             if lists.current_map[1,y,x] != "000":
@@ -102,7 +102,7 @@ def try_summon(name="???", nick="???", other=[], spd = 128, respawns=math.inf, w
         entity.entity_summoner.summon_HUMANOID(name,nick,target_Ent=other, spd=spd, weapons=weapons)
         if not name in lists.path_dict:
             lists.path_dict[name] = layers = int(lists.current_map.shape[0])
-            lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, 23, 40))
+            lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, setup.map_height, setup.map_width))
             update_pathgrid(name)
         return True
     return False

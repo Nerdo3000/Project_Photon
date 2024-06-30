@@ -1,7 +1,8 @@
 import random
 import numpy
+import pygame_setup as setup
 
-map = numpy.full((2, 23, 40), "000")
+map = numpy.full((2, setup.map_height, setup.map_width), "000")
 #                 Z, Y,  X
 
 #LAYER 0

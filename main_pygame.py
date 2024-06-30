@@ -1,5 +1,7 @@
 import log_set.logger as logger;    logger.log("Session started!")
 import log_set.settings as settings
+import math
+import extra_math as mthd
 
 if settings.new_random_map:import map_generator;logger.log("New Map Generated!")
 import pygame;                                  logger.log("Pygame Import Successfull!")
@@ -35,8 +37,61 @@ def mode__normal():
     logger.write("="*200)
 
     entitys.tick_all()
+
+    try:
+        tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).vars.pos.x)-(setup.screen.get_width()/2)
+        tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).vars.pos.y)-(setup.screen.get_height()/2)
+        if tmp_cam_pos_x+(setup.screen.get_width()/2) < (setup.screen.get_width())/2:
+            tmp_cam_pos_x = 0
+        if tmp_cam_pos_y+(setup.screen.get_height()/2) < (setup.screen.get_height())/2:
+            tmp_cam_pos_y = 0
+        if tmp_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()/2)*2:
+            tmp_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width()/2)*2
+        if tmp_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()/2)*2:
+            tmp_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height()/2)*2
+        if (lists.name_dict["PLAYER"]).vars.conditions.plop_animation<30:
+            old_cam_pos = setup.camera_pos
+            new_cam_pos_x = tmp_cam_pos_x
+            new_cam_pos_y = tmp_cam_pos_y
+            dir = (mthd.maths.atan3(new_cam_pos_x-old_cam_pos.x, old_cam_pos.y-new_cam_pos_y)-270) % 360
+            dir = mthd.maths.transform_direction(dir)
+            dist = math.dist(old_cam_pos.xy, (new_cam_pos_x, new_cam_pos_y))
+            #print(dir)
+
+            x = math.sin(math.radians(dir))
+            y = math.cos(math.radians(dir))
+
+            new_cam_pos_x = setup.camera_pos.x
+            new_cam_pos_y = setup.camera_pos.y
+
+            change_x = math.copysign((abs(x*dist)**0.7), x)
+            change_y = math.copysign((abs(y*dist)**0.7), y)
+            print(dist,change_x) #x*dist/4
+
+            #"""
+            new_cam_pos_x += change_x
+            new_cam_pos_y += change_y
+            #"""
+            """
+            dif_x = new_cam_pos_x - old_cam_pos.x
+            new_cam_pos_x = setup.camera_pos.x
+            change = math.copysign((abs(dif_x)**0.7), dif_x)*x
+            if abs(change)<0.25: change=0
+            new_cam_pos_x += change
+
+            dif_y = new_cam_pos_y - old_cam_pos.y
+            new_cam_pos_y = setup.camera_pos.y
+            change = math.copysign((abs(dif_y)**0.7), dif_y)*y
+            if abs(change)<0.25: change=0
+            new_cam_pos_y += change
+            """
+        else: 
+            new_cam_pos_x = tmp_cam_pos_x
+            new_cam_pos_y = tmp_cam_pos_y
+        setup.camera_pos.xy = (new_cam_pos_x, new_cam_pos_y) 
+    except KeyError:pass
+
     draw_all()
-    
     setup.mouse_keyboard.draw_mouse()
 
     if lists.slow_motion:
@@ -71,7 +126,7 @@ while setup.running:
     setup.window.blit(setup.screen, (0,0))
     pygame.display.flip()
 
-    setup.delta = setup.clock.tick(60) / 1000 #40 ticks per second ###New: 25 ticks per second
+    setup.delta = setup.clock.tick(60) / 1000 #setup.map_width ticks per second ###New: 25 ticks per second
     setup.ticks += 1
 
 

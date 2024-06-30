@@ -20,11 +20,12 @@ class HUMANOID:
             else:
                 if setup.mouse_keyboard.right_click: 
                     setup.mouse_keyboard.click_wait = 30
-                    self.vars.pos.xy = setup.mouse_keyboard.mouse_custom_pos.xy
+                    self.vars.pos.xy = (setup.mouse_keyboard.mouse_custom_pos.x+setup.camera_pos.x, setup.mouse_keyboard.mouse_custom_pos.y+setup.camera_pos.y)
                     self.vars.conditions.plop_animation = 0
                     lists.slow_motion = False
                     if self.vars.hp <= 8: self.vars.hp += 2
                 return
+            
         if not self.vars.conditions.dead:
             self.update_and_reset()
 
@@ -66,14 +67,15 @@ class HUMANOID:
         self.vars.inputs.throw_mod = random.randint(-10, 10) * lists.hardness
         self.vars.inputs.joystick.xy = setup.mouse_keyboard.joystick.xy
         if self.vars.weapons.fireball != False: self.vars.inputs.try_throw_fireball = setup.mouse_keyboard.right_click
-        self.vars.inputs.fireball_target = setup.mouse_keyboard.mouse_custom_pos
+        self.vars.inputs.fireball_target = mthd.Position(setup.mouse_keyboard.mouse_custom_pos.x, setup.mouse_keyboard.mouse_custom_pos.y)
+        self.vars.inputs.fireball_target.add(setup.camera_pos.x, setup.camera_pos.y)
         self.vars.inputs.try_sword = setup.mouse_keyboard.spacebar
         self.vars.inputs.try_dash = setup.mouse_keyboard.shift
         self.vars.inputs.ULTI = setup.mouse_keyboard.ULTIMATE_POWER
         if self.vars.inputs.try_dash:
             self.vars.conditions.dash_cooldown += 1
             if self.vars.conditions.dash_cooldown<0 and self.vars.inputs.joystick.xy != (0,0):
-                self.vars.conditions.velocity_time = 23
+                self.vars.conditions.velocity_time = 20
                 self.vars.conditions.dash_cooldown = 40
                 self.vars.conditions.velocity_dir.xy = self.vars.inputs.joystick.xy
     
@@ -152,7 +154,7 @@ class HUMANOID:
             dist = math.dist(currentPos.xy, self.vars.inputs.fireball_target.xy)
             if dist < 8:
                 dist = math.dist(self.vars.inputs.fireball_target.xy, self.vars.pos.xy)
-                if dist <= 256 and (self.vars.name + '_fireball' not in str(lists.alive_entitys)) and not dont_try_fireball:         #40 * setup.delta * 300:
+                if dist <= 256 and (self.vars.name + '_fireball' not in str(lists.alive_entitys)) and not dont_try_fireball:         #setup.map_width * setup.delta * 300:
                     self.vars.inputs.try_throw_fireball = fireball
                     self.vars.inputs.throw_mod = random.randint(-lists.entity_presision, lists.entity_presision)
                 return True, dir 
@@ -250,9 +252,9 @@ class HUMANOID:
             else: color.append(val)
         width = 5*self.vars.hp
 
-        pygame.draw.rect(setup.screen,(20,24,46), pygame.Rect((self.vars.pos.x - 22), (self.vars.pos.y - 38), 50, 8))
+        pygame.draw.rect(setup.screen,(20,24,46), pygame.Rect((self.vars.pos.x - 22-setup.camera_pos.x), (self.vars.pos.y - 38-setup.camera_pos.y), 50, 8))
         try:
-            pygame.draw.rect(setup.screen, color, pygame.Rect((self.vars.pos.x - 22), (self.vars.pos.y - 38), width, 8))
+            pygame.draw.rect(setup.screen, color, pygame.Rect((self.vars.pos.x - 22-setup.camera_pos.x), (self.vars.pos.y - 38-setup.camera_pos.y), width, 8))
         except ValueError:
             print(color)
         a = (ent.visuals.load_image("img/icons_/health_bar_empty"))
@@ -262,7 +264,7 @@ class HUMANOID:
             if n>8: n = 8
             a = (ent.visuals.load_image("img/icons_/ULTI_icon" + str(int(n))))
             ent.visuals.blit(a,(self.vars.pos.x - 4), (self.vars.pos.y - 54))
-            #ent.visuals.blit(a,(self.vars.pos.x + 32), (self.vars.pos.y - 40))
+            #ent.visuals.blit(a,(self.vars.pos.x + 32), (self.vars.pos.y - setup.map_width))
 
     def movement(self):
         """Moving the humanoid in the correct way: controlling voluntry diagonal movement, involuntry movement, respective of the delta value and checking for collisions with the level."""
@@ -340,7 +342,7 @@ class FIRE_BALL:
     
     def draw(self):
         "Determining the correct image, position and animation of the fireball and drawing it on screen."
-        if not self.vars.conditions.dead:                  setup.screen.blit(self.image, self.vars.pos.xy);     return
+        if not self.vars.conditions.dead:                  setup.screen.blit(self.image,(self.vars.pos.x-setup.camera_pos.x, self.vars.pos.y-setup.camera_pos.y));     return
         elif not self.vars.conditions.animation_invisible: 
             image = ent.visuals.load_image('img/fireball_/explosion' + str(5 - int(self.vars.conditions.counter_till_death)))
             ent.visuals.blit(image, (self.vars.pos.x - self.size_mod), (self.vars.pos.y - self.size_mod), 1.000001, self.death_dir)

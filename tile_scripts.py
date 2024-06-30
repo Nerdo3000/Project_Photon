@@ -2,6 +2,7 @@ import pygame
 import pygame_setup as setup
 import numpy
 import lists
+import math
 
 class TILES():
     def __init__(self):
@@ -9,7 +10,7 @@ class TILES():
         
     def preload_tiles(self, current_map):
         self.current_map=current_map
-        self.tile_data_map = numpy.full((2, 23, 40), None)
+        self.tile_data_map = numpy.full((2, setup.map_height, setup.map_width), None)
         for z in range(current_map.shape[0]):
             for y in range(current_map.shape[1]):
                 for x in range(current_map.shape[2]):
@@ -19,16 +20,23 @@ class TILES():
     
     def draw(self):
         for z in range(0,2):
+            for y in range(math.floor((setup.camera_pos.y/32))-1, math.ceil(((setup.camera_pos.y+setup.screen.get_height())/32))):
+                for x in range(math.floor((setup.camera_pos.x/32))-1, math.ceil(((setup.camera_pos.x+setup.screen.get_width())/32))):
+                    img = self.tile_data_map[z,y,x]
+                    if img != None: setup.screen.blit(img, ((x*32)-setup.camera_pos.x,(y*32)-setup.camera_pos.y))
+
+        """
+        for z in range(0,2):
             for y in range(self.tile_data_map.shape[1]):
                 for x in range(self.tile_data_map.shape[2]):
                     img = self.tile_data_map[z,y,x]
-                    if img != None: setup.screen.blit(img, (x*32,y*32))
-
+                    if img != None: setup.screen.blit(img, ((x*32)-setup.camera_pos.x,(y*32)-setup.camera_pos.y))
+        """
     def load_map(self):
         map = numpy.loadtxt("cmap_data.txt", comments='#>', dtype=str)
-        map = map[0:(23*2)]
+        map = map[0:(setup.map_height*2)]
         
-        map = map.reshape(2, 23, 40)
+        map = map.reshape(2, setup.map_height, setup.map_width)
         return map
     
     def deload_map(self):
@@ -40,7 +48,7 @@ class TILES():
 
     def load_pathgird(self,current_map, layer):
         self.current_map=current_map
-        self.path_tile_data = numpy.full((1, 23, 40), None)
+        self.path_tile_data = numpy.full((1, setup.map_height, setup.map_width), None)
         z = layer
         for y in range(current_map.shape[1]):
             for x in range(current_map.shape[2]):
@@ -55,4 +63,4 @@ class TILES():
         for y in range(self.path_tile_data.shape[1]):
             for x in range(self.path_tile_data.shape[2]):
                 img = self.path_tile_data[0,y,x]
-                if img != None: setup.screen.blit(img, (x*32,y*32))
+                if img != None: setup.screen.blit(img, ((x*32)-setup.camera_pos.x, (y*32)-setup.camera_pos.y))

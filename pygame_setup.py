@@ -21,6 +21,11 @@ pause = False
 
 cursor_img = pygame.image.load('img/icons_/cursor.png')
 
+camera_pos = mthd.Position(0,0)
+
+map_width = 80
+map_height = 46
+
 class _mouse_keyboard:
     def __init__(self):
         self.mouse_custom_pos = mthd.Position()
@@ -64,7 +69,7 @@ class _mouse_keyboard:
         rot = False
         for ent in lists.alive_entitys:
             xy = (lists.name_dict[ent]).vars.pos.xy
-            dis = math.dist(xy, self.mouse_custom_pos.xy)
+            dis = math.dist(xy, (self.mouse_custom_pos.x+camera_pos.x, self.mouse_custom_pos.y+camera_pos.y))
             if dis < 25: rot = True
         if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
         else:       cursor_img_draw = cursor_img

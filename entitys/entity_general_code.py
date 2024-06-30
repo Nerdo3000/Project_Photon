@@ -76,7 +76,7 @@ class basic_entity_variables():
 class visuals:
     def blit(image, posx=None, posy=None, scale=1, dir=0):
         if scale!=1: image = pygame.transform.rotozoom(image, dir, scale)
-        setup.screen.blit(image, (posx, posy))
+        setup.screen.blit(image, (posx-setup.camera_pos.x, posy-setup.camera_pos.y))
     
     def load_image(name, flipx=False, flipy=False, alpha=255):
         img = pygame.image.load(str(name) + ".png")
