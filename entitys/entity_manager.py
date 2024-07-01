@@ -37,13 +37,14 @@ def tick_all():
         try_summon_all()
         if (setup.ticks%10 == 9): 
             pathgriders = []
-            for i in lists.alive_entitys:
+            for i in lists.pathfinding_requests:
                 if (lists.name_dict[i]).type == "HUM":
                     pathgriders.append(i)
                     if not i in lists.path_dict:
                         layers = int(lists.current_map.shape[0])
                         lists.path_dict[i]= layers
                         lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((layers+1, setup.map_height, setup.map_width))
+            lists.pathfinding_requests = []
             update_pathgrids(pathgriders)
     for name in lists.alive_entitys:
         (lists.name_dict[name]).tick()
@@ -53,7 +54,15 @@ def tick_all():
 def draw_all():
     draw_sequence = order_draw_sequence()
     for name in draw_sequence:
-        (lists.name_dict[name]).draw()
+        #dist = math.dist(((lists.name_dict[name]).vars.pos.xy), ((setup.camera_pos.x+setup.screen.get_width()/2), (setup.camera_pos.y+setup.screen.get_height()/2)))
+        if (setup.camera_pos.x+setup.screen.get_width()+100)>(lists.name_dict[name]).vars.pos.x and (setup.camera_pos.x-100)<(lists.name_dict[name]).vars.pos.x:
+            if (setup.camera_pos.y+setup.screen.get_height()+100)>(lists.name_dict[name]).vars.pos.y and (setup.camera_pos.y-100)<(lists.name_dict[name]).vars.pos.y:
+                (lists.name_dict[name]).draw()
+        """
+        dist = math.dist(((lists.name_dict[name]).vars.pos.xy), ((setup.camera_pos.x+setup.screen.get_width()/2), (setup.camera_pos.y+setup.screen.get_height()/2)))
+        if dist < setup.screen.get_width():
+            (lists.name_dict[name]).draw()
+        """
 
 def make_pathgrid():
     lists.path_grid = numpy.full((1, setup.map_height, setup.map_width), "000")

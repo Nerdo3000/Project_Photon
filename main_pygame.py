@@ -30,14 +30,7 @@ def draw_all():
 
     entitys.draw_all()
 
-def mode__normal():
-    #pygame.draw.rect(setup.screen, (0,0,0), pygame.Rect(0, 0, setup.screen.get_width(), setup.screen.get_height()))
-    logger.write("="*200)
-    leng = (200-(len("Tick "+str(setup.ticks))))//2; logger.write("="*leng+"Tick "+str(setup.ticks)+"="*leng)
-    logger.write("="*200)
-
-    entitys.tick_all()
-
+def move_camera():
     try:
         tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).vars.pos.x)-(setup.screen.get_width()/2)
         tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).vars.pos.y)-(setup.screen.get_height()/2)
@@ -84,6 +77,16 @@ def mode__normal():
         setup.camera_pos.xy = (new_cam_pos_x, new_cam_pos_y) 
     except KeyError:pass
 
+def mode__normal():
+    #pygame.draw.rect(setup.screen, (0,0,0), pygame.Rect(0, 0, setup.screen.get_width(), setup.screen.get_height()))
+    logger.write("="*200)
+    leng = (200-(len("Tick "+str(setup.ticks))))//2; logger.write("="*leng+"Tick "+str(setup.ticks)+"="*leng)
+    logger.write("="*200)
+
+    entitys.tick_all()
+
+    move_camera()
+
     draw_all()
     setup.mouse_keyboard.draw_mouse()
 
@@ -120,10 +123,12 @@ while setup.running:
     pygame.display.flip()
 
     setup.delta = setup.clock.tick(60) / 1000 #setup.map_width ticks per second ###New: 25 ticks per second
+    setup.delta_list.append(setup.delta)
     setup.ticks += 1
 
 
 logger.write(("="*200), amt=6)
 logger.log("Application Terminated!")
+logger.log("Average Delta: "+ str(sum(setup.delta_list)/len(setup.delta_list)))
 pygame.quit()
 TILES.deload_map()

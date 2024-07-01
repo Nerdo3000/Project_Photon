@@ -16,7 +16,7 @@ pygame.display.set_caption("Project Photon Prototype", "Project Photon")
 
 clock = pygame.time.Clock()
 pygame.mouse.set_visible(False)
-
+delta_list = []
 pause = False
 
 cursor_img = pygame.image.load('img/icons_/cursor.png')

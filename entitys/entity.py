@@ -135,6 +135,8 @@ class HUMANOID:
             return "r"
         return False
     def AI__pathgrid_controller(self):
+        if not self.target_name in lists.pathfinding_requests:
+            lists.pathfinding_requests.append(self.target_name)
         try:
             targetpos = (lists.path_dict[self.target_name], int(self.vars.pos.y//32), int(self.vars.pos.x//32))
         except KeyError:

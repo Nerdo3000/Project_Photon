@@ -13,7 +13,7 @@ hardness = 0
 entity_presision = 5 - 5 * hardness
 slow_motion = False
 respawn_counter = {}
-
+pathfinding_requests = []
 to_spawn_ent = []
 
 class stats:
