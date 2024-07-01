@@ -58,11 +58,6 @@ def draw_all():
         if (setup.camera_pos.x+setup.screen.get_width()+100)>(lists.name_dict[name]).vars.pos.x and (setup.camera_pos.x-100)<(lists.name_dict[name]).vars.pos.x:
             if (setup.camera_pos.y+setup.screen.get_height()+100)>(lists.name_dict[name]).vars.pos.y and (setup.camera_pos.y-100)<(lists.name_dict[name]).vars.pos.y:
                 (lists.name_dict[name]).draw()
-        """
-        dist = math.dist(((lists.name_dict[name]).vars.pos.xy), ((setup.camera_pos.x+setup.screen.get_width()/2), (setup.camera_pos.y+setup.screen.get_height()/2)))
-        if dist < setup.screen.get_width():
-            (lists.name_dict[name]).draw()
-        """
 
 def make_pathgrid():
     lists.path_grid = numpy.full((1, setup.map_height, setup.map_width), "000")

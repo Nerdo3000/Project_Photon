@@ -24,7 +24,6 @@ class TILES():
                 for x in range(math.floor((setup.camera_pos.x/32))-1, math.ceil(((setup.camera_pos.x+setup.screen.get_width())/32))):
                     img = self.tile_data_map[z,y,x]
                     if img != None: setup.screen.blit(img, ((x*32)-setup.camera_pos.x,(y*32)-setup.camera_pos.y))
-
         """
         for z in range(0,2):
             for y in range(self.tile_data_map.shape[1]):
