@@ -1,3 +1,4 @@
+import pygame.freetype
 import log_set.logger as logger;    logger.log("Session started!")
 import log_set.settings as settings
 import math
@@ -88,7 +89,7 @@ def mode__normal():
     move_camera()
 
     draw_all()
-    setup.mouse_keyboard.draw_mouse()
+    setup.mouse_keyboard.draw_mouse(mode="normal")
 
     if lists.slow_motion:
         old_screen = pygame.Surface.copy(setup.screen)
@@ -101,7 +102,16 @@ def mode__normal():
 def mode__pause():
     draw_all()
     pygame.transform.grayscale(setup.screen, setup.screen)
-    setup.mouse_keyboard.draw_mouse()
+
+    pause_screen = pygame.image.load("img/icons_/GUI_scroll.png")
+    pause_screen = pygame.transform.scale2x(pause_screen)
+    pos = ((setup.screen.get_width()//2)-93*2, (setup.screen.get_height()//2)-96*2)
+    setup.screen.blit(pause_screen, pos)
+    text_surf = setup.font.render("Paused", (0,0,0))
+    setup.font = pygame.freetype.Font(None, 36)
+    setup.screen.blit(text_surf[0], ((setup.screen.get_width()//2)-55, (setup.screen.get_height()//2)-10))
+
+    setup.mouse_keyboard.draw_mouse(mode="pause")
 
 logger.log("Entering Main Loop!")
 while setup.running:

@@ -332,6 +332,7 @@ class FIRE_BALL:
 
     def tick(self):
         """Ticking the fireball: Moving it and checking for (deadly) colisions."""
+        if lists.slow_motion: return
         if self.vars.conditions.dead: 
             if self.vars.conditions.counter_till_death <= 0: lists.KILL_entity(self.vars.name)
             self.vars.hitbox = self.size_mod;   self.vars.conditions.counter_till_death -= 0.5;     return
@@ -377,10 +378,10 @@ class entity_summoner:
     def summon_HUMANOID(name, nick, pos=None, spd=128, target_Ent=None, weapons=()):
         "Summons a Humanoid entity at a random Position, if pos is not given."
         if pos==None:
-            coord = (random.randint(0, 1280), random.randint(0, 736))
+            coord = (random.randint(0, setup.map_width*32), random.randint(0, setup.map_height*32))
             dist=True
             while (ent.Collisions.colides(coord[0], coord[1], 8)) or dist:
-                    coord = (random.randint(0, 1280), random.randint(0, 736))
+                    coord = (random.randint(0, setup.map_width*32), random.randint(0, setup.map_height*32))
                     dist = ent.Collisions.n_hitbox(coord[0], coord[1], 50, name) # dist = ent.Collisions.n_hitbox(coord[0], coord[1], 500, name)
         else:   coord=pos
         while name in lists.alive_entitys:

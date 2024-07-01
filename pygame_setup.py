@@ -1,4 +1,5 @@
 import pygame
+import pygame.freetype
 import extra_math as mthd
 import lists
 import math
@@ -20,6 +21,10 @@ delta_list = []
 pause = False
 
 cursor_img = pygame.image.load('img/icons_/cursor.png')
+mouse_img = pygame.image.load("img/icons_/mouse.png")
+
+pygame.freetype.init()
+font = pygame.freetype.Font(None, 36)
 
 camera_pos = mthd.Position(0,0)
 
@@ -65,13 +70,17 @@ class _mouse_keyboard:
         if self.click_wait>0: self.right_click = False
         self.click_wait -= 1
 
-    def draw_mouse(self):
-        rot = False
-        for ent in lists.alive_entitys:
-            xy = (lists.name_dict[ent]).vars.pos.xy
-            dis = math.dist(xy, (self.mouse_custom_pos.x+camera_pos.x, self.mouse_custom_pos.y+camera_pos.y))
-            if dis < 25: rot = True
-        if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
-        else:       cursor_img_draw = cursor_img
-        screen.blit(cursor_img_draw, (self.mouse_custom_pos.x - 18-(rot*9), self.mouse_custom_pos.y - 18-(rot*9)))
+    def draw_mouse(self, mode):
+        if mode=="normal":
+            rot = False
+            for ent in lists.alive_entitys:
+                xy = (lists.name_dict[ent]).vars.pos.xy
+                dis = math.dist(xy, (self.mouse_custom_pos.x+camera_pos.x, self.mouse_custom_pos.y+camera_pos.y))
+                if dis < 25: rot = True
+            if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
+            else:       cursor_img_draw = cursor_img
+            screen.blit(cursor_img_draw, (self.mouse_custom_pos.x - 18-(rot*9), self.mouse_custom_pos.y - 18-(rot*9)))
+        else:
+            screen.blit(mouse_img, (self.mouse_custom_pos.x, self.mouse_custom_pos.y))
+
 mouse_keyboard = _mouse_keyboard()
