@@ -107,9 +107,49 @@ def mode__pause():
     pause_screen = pygame.transform.scale2x(pause_screen)
     pos = ((setup.screen.get_width()//2)-93*2, (setup.screen.get_height()//2)-96*2)
     setup.screen.blit(pause_screen, pos)
-    text_surf = setup.font.render("Paused", (0,0,0))
+
     setup.font = pygame.freetype.Font(None, 36)
-    setup.screen.blit(text_surf[0], ((setup.screen.get_width()//2)-55, (setup.screen.get_height()//2)-10))
+    pos = ((setup.screen.get_width()//2)-55, (setup.screen.get_height()//2)-60)
+    text_surf = setup.font.render("Paused", (0,0,0))
+    text_box = text_surf[1]
+    setup.screen.blit(text_surf[0], pos)
+    setup.font = pygame.freetype.Font(None, 36)
+
+    setup.font = pygame.freetype.Font(None, 70)
+    pos = ((setup.screen.get_width()//2)-72, (setup.screen.get_height()//2)-30-2)
+    text_surf = setup.font.render("____", (0,0,0))
+    text_box = text_surf[1]
+    setup.screen.blit(text_surf[0], pos)
+    setup.font = pygame.freetype.Font(None, 36)
+
+    pos = ((setup.screen.get_width()//2)-60, (setup.screen.get_height()//2)-10)
+    text_surf = setup.font.render("Resume", (0,0,0))
+    text_box = text_surf[1]
+    setup.screen.blit(text_surf[0], pos)
+    #print(text_box.y+pos[1], setup.mouse_keyboard.mouse_custom_pos.y)
+    if (setup.mouse_keyboard.mouse_custom_pos.x > text_box.x+pos[0] and 
+        setup.mouse_keyboard.mouse_custom_pos.x < text_box.x+pos[0]+text_box.width and
+        setup.mouse_keyboard.mouse_custom_pos.y > text_box.y+pos[1]-text_box.height and 
+        setup.mouse_keyboard.mouse_custom_pos.y < text_box.y+pos[1]
+        ):
+        if setup.mouse_keyboard.right_click:
+            setup.pause = False
+    setup.font = pygame.freetype.Font(None, 36)
+
+    pos = ((setup.screen.get_width()//2)-35, (setup.screen.get_height()//2)+30)
+    text_surf = setup.font.render("Quit", (0,0,0))
+    text_box = text_surf[1]
+    setup.screen.blit(text_surf[0], pos)
+    #print(text_box.y+pos[1], setup.mouse_keyboard.mouse_custom_pos.y)
+    if (setup.mouse_keyboard.mouse_custom_pos.x > text_box.x+pos[0] and 
+        setup.mouse_keyboard.mouse_custom_pos.x < text_box.x+pos[0]+text_box.width and
+        setup.mouse_keyboard.mouse_custom_pos.y > text_box.y+pos[1]-text_box.height and 
+        setup.mouse_keyboard.mouse_custom_pos.y < text_box.y+pos[1]
+        ):
+        if setup.mouse_keyboard.right_click:
+            setup.running = False
+    setup.font = pygame.freetype.Font(None, 36)
+    
 
     setup.mouse_keyboard.draw_mouse(mode="pause")
 
