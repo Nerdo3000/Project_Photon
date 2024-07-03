@@ -7,3 +7,5 @@ Credits:
   - Contribution: https://o-lobster.itch.io/adventure-pack (Tileset)
 - 9KeyStudio (https://opengameart.org/users/9keystudio)
   - Contribution: https://opengameart.org/content/pixel-art-explosion-animation (Explosion Animation)
+- daneeklu (https://opengameart.org/users/daneeklu)
+  - Contribution: https://opengameart.org/content/lpc-farming-tilesets-magic-animations-and-ui-elements (UI elements)
