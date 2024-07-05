@@ -1,6 +1,6 @@
 {
     "player": {
-    "stats" : "player_TELE_unlim",
+    "stats" : "player_INVI_unlim",
     "amount": 1
     },
     "REDGUY": {

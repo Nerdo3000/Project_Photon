@@ -28,6 +28,8 @@ class stats:
             "player_HEAL_unlim"  :   ("PLAYER",  "P",        [],                             128,   math.inf,            ("wave",    True,   "HEAL")),
             "player_TELE_lim"    :   ("PLAYER",  "P",        [],                             128,   1,                   ("wave",    True,   "TELE")),
             "player_TELE_unlim"  :   ("PLAYER",  "P",        [],                             128,   math.inf,            ("wave",    True,   "TELE")),
+            "player_INVI_lim"    :   ("PLAYER",  "P",        [],                             128,   1,                   ("wave",    True,   "INVIS")),
+            "player_INVI_unlim"  :   ("PLAYER",  "P",        [],                             128,   math.inf,            ("wave",    True,   "INVIS")),
             "REDGUY_OP_lim"      :   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   1,                   ("wave",    True,   False)),
             "REDGUY_basic_lim"   :   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   1,                   ("one",     True,   False)),
             "REDGUY_basic_unlim" :   ("REDGUY",  "RED",      ["!G!", "VIOGUY"],              128,   math.inf,            ("one",     True,   False)),

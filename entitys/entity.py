@@ -38,14 +38,22 @@ class HUMANOID:
                     self.vars.conditions.ULTI_cooldown = 500
                     self.vars.conditions.max_ULTI_cooldown = 500
                     entity_summoner.summon_CIRCLE(n=36, startXY=self.vars.pos.xy, owner=self.vars.name)
-                if self.vars.weapons.up=="HEAL": 
+                elif self.vars.weapons.up=="HEAL": 
                     self.vars.conditions.ULTI_cooldown = 500
                     self.vars.conditions.max_ULTI_cooldown = 500
                     self.vars.conditions.ULTI_healing = 200
-                if self.vars.weapons.up=="TELE": 
+                elif self.vars.weapons.up=="TELE": 
                     self.vars.conditions.ULTI_cooldown = 200
                     self.vars.conditions.max_ULTI_cooldown = 200
                     lists.slow_motion = True
+                elif self.vars.weapons.up=="INVIS": 
+                    self.vars.conditions.ULTI_cooldown = 500
+                    self.vars.conditions.max_ULTI_cooldown = 500
+                    self.vars.conditions.ULTI_invis = 400
+                    self.vars.alpha_fade = 100
+
+            if self.vars.conditions.ULTI_invis<0:
+                    self.vars.alpha_fade = 255
 
             if self.vars.conditions.ball_dead and self.vars.inputs.try_throw_fireball:
                 if self.vars.weapons.fireball=="one":   self.vars.dir = entity_summoner.summon_fireball(self.vars.pos.xy, self.vars.inputs.fireball_target.xy, self.vars.inputs.throw_mod, owner=self.vars.name)
@@ -85,7 +93,8 @@ class HUMANOID:
             dists = {}
             for i in self.vars.target_ent:
                 try:
-                    dists[math.dist(self.vars.pos.xy, (lists.name_dict[i]).vars.pos.xy)+100000*(lists.name_dict[i]).vars.conditions.dead] = i
+                    if not (lists.name_dict[i]).vars.conditions.dead and not ((lists.name_dict[i]).vars.conditions.ULTI_invis>0):
+                        dists[math.dist(self.vars.pos.xy, (lists.name_dict[i]).vars.pos.xy)] = i
                 except:
                     pass
             if len(dists)>0:
@@ -97,7 +106,11 @@ class HUMANOID:
             for enemy in self.vars.target_ent[1:]:
                 for name in lists.alive_entitys:
                     if (enemy in name) and not ("fireball" in name):
-                        dists[math.dist(self.vars.pos.xy, (lists.name_dict[name]).vars.pos.xy)+100000*(lists.name_dict[name]).vars.conditions.dead] = name
+                        try:
+                            if not (lists.name_dict[name]).vars.conditions.dead and not ((lists.name_dict[name]).vars.conditions.ULTI_invis>0):
+                                dists[math.dist(self.vars.pos.xy, (lists.name_dict[name]).vars.pos.xy)] = name
+                        except: 
+                            pass
             if len(dists)>0:
                 self.target_name = dists[(sorted((list(dists))))[0]]
                 self.vars.inputs.fireball_target = (lists.name_dict[self.target_name]).vars.pos
@@ -307,6 +320,7 @@ class HUMANOID:
 
     def update_and_reset(self):
         "Updating and reseting essential variables."
+        self.vars.conditions.ULTI_invis -= 1
         self.move = mthd.Position(0, 0)
         self.vars.conditions.throw_cooldown -= 0.2;   self.vars.conditions.sword_cooldown -= 0.4;   self.vars.conditions.stunned -= 1;     self.vars.conditions.velocity_time -= 1;     self.vars.conditions.invulenarbility -= 1
         self.humanoid_frame = int(setup.ticks / 10) % 6     ;   self.vars.conditions.blocked -= 0.025   ; self.vars.conditions.dash_cooldown -= 1
