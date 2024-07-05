@@ -50,6 +50,8 @@ class _mouse_keyboard:
         self.joystick = mthd.Position()
         self.pause = False
         self.spacebar = False; self.shift = False; self.ULTIMATE_POWER=False
+        self.show_minimap =  False
+
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w] or keys[pygame.K_UP]:   self.joystick.y -= 1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]: self.joystick.y += 1
@@ -61,6 +63,7 @@ class _mouse_keyboard:
         if keys[pygame.K_LESS]:                     self.shift = True
         if keys[pygame.K_x]:                        self.ULTIMATE_POWER = True
         if keys[pygame.K_NUMLOCK]:                  self.show_pathgrid = not(self.show_pathgrid)
+        if keys[pygame.K_m]:                        self.show_minimap = True
 
         self.pause_wait -= 1
         if self.pause_wait<0:

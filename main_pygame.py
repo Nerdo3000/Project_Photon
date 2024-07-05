@@ -13,7 +13,7 @@ import pygame_setup as setup;                   logger.log("Setup Successfull!")
 TILES = TS.TILES()
 lists.current_map = TILES.load_map();           logger.log("Starting map data: " + str(lists.current_map))
 TILES.preload_tiles(lists.current_map);         logger.log("Tiles Preloaded!")
-
+TILES.preload_minimap()
 
 import entitys.entity_manager as entitys;       logger.log("Entity manager Import Successfull!")
 
@@ -30,6 +30,7 @@ def draw_all():
         except AttributeError: pass
 
     entitys.draw_all()
+    if setup.mouse_keyboard.show_minimap:   TILES.draw_minimap()
 
 def move_camera():
     try:
