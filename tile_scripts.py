@@ -81,11 +81,19 @@ class TILES():
         return map
     
     def deload_map(self):
+        layer = 0
         map = lists.current_map
+        lists.path_dict = {v: k for k, v in lists.path_dict.items()}
         with open("cmap_data.txt", "w") as data_file:
             for slice in map:
+                if layer < 2:
+                    numpy.savetxt(data_file, ["#>Layer " +str(layer)+"<#"], fmt='%s')
+                if layer == 2:
+                    numpy.savetxt(data_file, ["#>Layer Pathgrid<#"], fmt='%s')
+                if layer > 2:
+                    numpy.savetxt(data_file, ["#>Layer " +str(lists.path_dict[layer])+"<#"], fmt='%s')
                 numpy.savetxt(data_file, slice, fmt='%s')
-                numpy.savetxt(data_file, ["#>break<#"], fmt='%s')
+                layer += 1
 
     def load_pathgird(self,current_map, layer):
         self.current_map=current_map

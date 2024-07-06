@@ -54,7 +54,6 @@ def tick_all():
 def draw_all():
     draw_sequence = order_draw_sequence()
     for name in draw_sequence:
-        #dist = math.dist(((lists.name_dict[name]).vars.pos.xy), ((setup.camera_pos.x+setup.screen.get_width()/2), (setup.camera_pos.y+setup.screen.get_height()/2)))
         if (setup.camera_pos.x+setup.screen.get_width()+100)>(lists.name_dict[name]).vars.pos.x and (setup.camera_pos.x-100)<(lists.name_dict[name]).vars.pos.x:
             if (setup.camera_pos.y+setup.screen.get_height()+100)>(lists.name_dict[name]).vars.pos.y and (setup.camera_pos.y-100)<(lists.name_dict[name]).vars.pos.y:
                 (lists.name_dict[name]).draw()
@@ -67,6 +66,7 @@ def make_pathgrid():
                 lists.path_grid[0,y,x] = "###"
             else:
                 lists.path_grid[0,y,x] = "QQQ"
+    lists.current_map = (numpy.append(lists.current_map, lists.path_grid)).reshape((int(lists.current_map.shape[0])+1, setup.map_height, setup.map_width))
 
 def update_pathgrids(grid_names):
     for i in grid_names:
