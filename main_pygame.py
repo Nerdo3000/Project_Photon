@@ -17,6 +17,7 @@ TILES.preload_minimap()
 
 import entitys.entity_manager as entitys;       logger.log("Entity manager Import Successfull!")
 
+lists.highest = math.ceil(math.ceil((((setup.map_height*setup.map_width)-1)/2)**0.5+1)/10)*10
 entitys.make_pathgrid();                        logger.log("Pathgrid Generated!")
 entitys.tick_all()
 
@@ -181,5 +182,6 @@ while setup.running:
 logger.write(("="*200), amt=6)
 logger.log("Application Terminated!")
 logger.log("Average Delta: "+ str(sum(setup.delta_list)/len(setup.delta_list)))
+logger.log("Max Delta: "+ str(max(setup.delta_list)))
 pygame.quit()
 TILES.deload_map()
