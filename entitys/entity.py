@@ -353,9 +353,10 @@ class FIRE_BALL:
         self.kill_timer -= setup.delta; self.vars.conditions.invulenarbility -= 1
         self.vars.pos.x += math.cos(self.vars.dir) * self.vars.move_speed * setup.delta
         self.vars.pos.y += math.sin(self.vars.dir) * self.vars.move_speed * setup.delta
-        if (ent.Collisions.colides(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox)) or (self.kill_timer <= 0): self.vars.conditions.dead = True
+        if (self.kill_timer <= 0): self.vars.conditions.dead = True; return
+        if ent.Collisions.colides(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox): self.vars.conditions.dead = True; return
         if self.vars.conditions.invulenarbility <= 0:
-            if ent.Collisions.n_hitbox(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox * 4, self.vars.name): self.vars.conditions.dead = True
+            if ent.Collisions.n_hitbox(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox * 4, self.vars.name): self.vars.conditions.dead = True; return
     
     def draw(self):
         "Determining the correct image, position and animation of the fireball and drawing it on screen."
