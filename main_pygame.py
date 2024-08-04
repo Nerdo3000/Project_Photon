@@ -33,18 +33,24 @@ def draw_all():
     entitys.draw_all()
     if setup.mouse_keyboard.show_minimap:   TILES.draw_minimap()
 
+def camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y):
+    if tmp_cam_pos_x < 0:
+        tmp_cam_pos_x = 0
+    if tmp_cam_pos_y < 0:
+        tmp_cam_pos_y = 0
+    if tmp_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()):
+        tmp_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width())
+    if tmp_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()):
+        tmp_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height())
+    return tmp_cam_pos_x, tmp_cam_pos_y
+
 def move_camera():
-    try: #OPT FLAG
+    try:
         tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).vars.pos.x)-(setup.screen.get_width()/2)
         tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).vars.pos.y)-(setup.screen.get_height()/2)
-        if tmp_cam_pos_x+(setup.screen.get_width()/2) < (setup.screen.get_width())/2:
-            tmp_cam_pos_x = 0
-        if tmp_cam_pos_y+(setup.screen.get_height()/2) < (setup.screen.get_height())/2:
-            tmp_cam_pos_y = 0
-        if tmp_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()/2)*2:
-            tmp_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width()/2)*2
-        if tmp_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()/2)*2:
-            tmp_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height()/2)*2
+
+        tmp_cam_pos_x, tmp_cam_pos_y = camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y)
+
         if (lists.name_dict["PLAYER"]).vars.conditions.plop_animation<60:
             old_cam_pos = setup.camera_pos
             new_cam_pos_x = tmp_cam_pos_x
@@ -66,14 +72,7 @@ def move_camera():
                 new_cam_pos_x += change_x
                 new_cam_pos_y += change_y
 
-                if new_cam_pos_x+(setup.screen.get_width()/2) < (setup.screen.get_width())/2:
-                    new_cam_pos_x = 0
-                if new_cam_pos_y+(setup.screen.get_height()/2) < (setup.screen.get_height())/2:
-                    new_cam_pos_y = 0
-                if new_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()/2)*2:
-                    new_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width()/2)*2
-                if new_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()/2)*2:
-                    new_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height()/2)*2
+                new_cam_pos_x, new_cam_pos_y = camera_positioning_at_edges(new_cam_pos_x, new_cam_pos_y)
         else: 
             new_cam_pos_x = tmp_cam_pos_x
             new_cam_pos_y = tmp_cam_pos_y
