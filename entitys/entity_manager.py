@@ -12,6 +12,8 @@ respawn_timer = setup.map_width*3
 
 stats = lists.stats()
 
+lists.highest = math.ceil(math.ceil((((setup.map_height*setup.map_width)-1)/2)**0.5+1)/10)*10
+
 def add_entitys():
     for i in range(settings.player_amount):
         add_entity(stats.stats_dict[settings.player_stats])

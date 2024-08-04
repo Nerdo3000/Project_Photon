@@ -17,7 +17,6 @@ TILES.preload_minimap()
 
 import entitys.entity_manager as entitys;       logger.log("Entity manager Import Successfull!")
 
-lists.highest = math.ceil(math.ceil((((setup.map_height*setup.map_width)-1)/2)**0.5+1)/10)*10
 entitys.make_pathgrid();                        logger.log("Pathgrid Generated!")
 entitys.tick_all()
 
