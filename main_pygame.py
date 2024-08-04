@@ -34,7 +34,7 @@ def draw_all():
     if setup.mouse_keyboard.show_minimap:   TILES.draw_minimap()
 
 def move_camera():
-    try:
+    try: #OPT FLAG
         tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).vars.pos.x)-(setup.screen.get_width()/2)
         tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).vars.pos.y)-(setup.screen.get_height()/2)
         if tmp_cam_pos_x+(setup.screen.get_width()/2) < (setup.screen.get_width())/2:
@@ -151,9 +151,9 @@ def mode__pause():
         if setup.mouse_keyboard.right_click:
             setup.running = False
     setup.font = pygame.freetype.Font(None, 36)
-    
 
     setup.mouse_keyboard.draw_mouse(mode="pause")
+
 
 logger.log("Entering Main Loop!")
 while setup.running:

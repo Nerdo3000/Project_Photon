@@ -87,8 +87,7 @@ def update_pathgrid(target_name, max_idx=math.inf):
     startY = int((lists.name_dict[target_name]).vars.pos.y//32)
     path_grid[startY, startX] = "000"
     to_do = [(startY, startX)]
-    while not(len(to_do)<=0 or did_idx>max_idx):
-        #print(len(to_do))
+    while len(to_do)>0 and did_idx<max_idx:   
         current_pos = to_do.pop(0) 
         for i in range(4):
             dir = (i*90)%360
