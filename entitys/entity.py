@@ -89,33 +89,25 @@ class HUMANOID:
     
     def AI_controller(self):
         "Getting the Controls of the AI charakter, this includes walking, fireball throwing and fireball deflecting (sword)."
+        possible_targets = []
+        dists = {}
         if not "!G!" == self.vars.target_ent[0]:
-            dists = {}
-            for i in self.vars.target_ent:
-                try:
-                    if not (lists.name_dict[i]).vars.conditions.dead and not ((lists.name_dict[i]).vars.conditions.ULTI_invis>0):
-                        dists[math.dist(self.vars.pos.xy, (lists.name_dict[i]).vars.pos.xy)] = i
-                except:
-                    pass
-            if len(dists)>0:
-                self.target_name = dists[(sorted((list(dists))))[0]]
-                self.vars.inputs.fireball_target = (lists.name_dict[self.target_name]).vars.pos
-            else: return
+            possible_targets = self.vars.target_ent
         else:
-            dists = {}
             for enemy in self.vars.target_ent[1:]:
                 for name in lists.alive_entitys:
                     if (enemy in name) and not ("fireball" in name):
-                        try:
-                            if not (lists.name_dict[name]).vars.conditions.dead and not ((lists.name_dict[name]).vars.conditions.ULTI_invis>0):
-                                dists[math.dist(self.vars.pos.xy, (lists.name_dict[name]).vars.pos.xy)] = name
-                        except: 
-                            pass
-            if len(dists)>0:
-                self.target_name = dists[(sorted((list(dists))))[0]]
-                self.vars.inputs.fireball_target = (lists.name_dict[self.target_name]).vars.pos
-            else: return
-            
+                        possible_targets.append(name)
+        for target in possible_targets:
+            try:
+                if not (lists.name_dict[target]).vars.conditions.dead and not ((lists.name_dict[target]).vars.conditions.ULTI_invis>0):
+                        dists[math.dist(self.vars.pos.xy, (lists.name_dict[target]).vars.pos.xy)] = target
+            except KeyError:  pass
+        if len(dists)>0:
+            self.target_name = dists[(sorted((list(dists))))[0]]
+            self.vars.inputs.fireball_target = (lists.name_dict[self.target_name]).vars.pos
+        else: return
+
         if self.vars.weapons.sword:
             dont_try_fireball = self.AI__sword_controller()
             if dont_try_fireball=="r":return
