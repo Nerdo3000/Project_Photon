@@ -1,4 +1,5 @@
 import math
+import json
 path_grid = []
 name_dict = {}
 path_dict = {}
@@ -28,11 +29,14 @@ centered_square_num = [1, 5, 13, 25, 41, 61, 85, 113, 145, 181, 221, 265,
                        16021, 16381, 16745, 17113, 17485, 17861, 18241, 
                        18625, 19013, 19405, 19801] #OESIS:  A001844 
 highest = math.inf
+number_of_patrol_points = int
+to_spawn_ent_stats = {}
 
+"""
 class stats:
     def __init__(self):
-        """Basic Values          :   (NAME,      Nickname,   Enemies,                        Speed, respawns,    Weapons: fireball,  sword,  ULTI)"""
-        self.stats_dict = {
+        """#Basic Values          :   (NAME,      Nickname,   Enemies,                        Speed, respawns,    Weapons: fireball,  sword,  ULTI)"""
+"""        self.stats_dict = {
             "player_basic_lim"   :   ("PLAYER",  "P",        [],                             128,   1,                   ("one",     True,   False)),
             "player_basic_unlim" :   ("PLAYER",  "P",        [],                             128,   math.inf,            ("one",     True,   False)),
             "player_OP_lim"      :   ("PLAYER",  "P",        [],                             128,   1,                   ("wave",    True,   "CIRCLE")),
@@ -56,3 +60,7 @@ class stats:
         new_variation[index] = new_value
         return tuple(new_variation)
     var = create_variation
+"""
+
+with open("entity_stats.json", "r") as file:
+    stats = json.load(file)

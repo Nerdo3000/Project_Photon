@@ -5,165 +5,174 @@ import random
 import extra_math as mthd
 import entitys.entity_general_code as ent
 import lists
+from types import SimpleNamespace
+import json
 
 class HUMANOID:
     "The Humanoid Entity class."
-    def __init__(self, name, nick_name, start_modXY=(0, 0), speed=128, target="PLAYER", weapons=()):
+    def __init__(self, stats_block, name, start_modXY=(0, 0)):
         """Initialisation of the Humanoid charakter. Setting up the Humanoids: speed, position, direction, Animitaion frame, Image and cooldown variables."""
-        self.vars = ent.basic_entity_variables(start_modXY, move_speed = speed, hitbox = 8, name = name, nick=nick_name, target_Ent=target, weapon=weapons)
-        self.type = "HUM"
+        self.stats = json.loads(json.dumps((lists.stats["HUMANOID"][stats_block])), object_hook=lambda item: SimpleNamespace(**item)) #Dark Magic
+        self.stats.name = name
+        self.stats.conditions.plop_animation = math.inf
+        self.stats.conditions.velocity_dir = mthd.Position(0,0)
+        self.stats.inputs = ent.Entity_inputs()
+        self.stats.pos = mthd.Position(start_modXY[0], start_modXY[1])
 
     def tick(self):
         """Ticks the humanoid: Moving the humanoid, fireball throwing and updating variables like the animation frame and cooldown variables."""
         if lists.slow_motion:
-            if self.vars.name!="PLAYER": return
+            if self.stats.name!="PLAYER": return
             else:
                 if setup.mouse_keyboard.right_click: 
                     setup.mouse_keyboard.click_wait = 30
-                    self.vars.pos.xy = (setup.mouse_keyboard.mouse_custom_pos.x+setup.camera_pos.x, setup.mouse_keyboard.mouse_custom_pos.y+setup.camera_pos.y)
-                    self.vars.conditions.plop_animation = 0
+                    self.stats.pos.xy = (setup.mouse_keyboard.mouse_custom_pos.x+setup.camera_pos.x, setup.mouse_keyboard.mouse_custom_pos.y+setup.camera_pos.y)
+                    self.stats.conditions.plop_animation = 0
                     lists.slow_motion = False
-                    if self.vars.hp <= 8: self.vars.hp += 2
+                    if self.stats.hp <= 8: self.stats.hp += 2
                 return
             
-        if not self.vars.conditions.dead:
+        if not self.stats.conditions.dead:
             self.update_and_reset()
 
-            if (self.vars.conditions.stunned <= 0) and(self.vars.conditions.throw_cooldown+2) <= 0 and (self.vars.conditions.sword_cooldown+4)<=0:
-                if self.vars.name == 'PLAYER':      self.PLAYER_controller()
-                if 'GUY' in self.vars.name:         self.AI_controller()
+            if (self.stats.conditions.stunned <= 0) and(self.stats.conditions.throw_cooldown+2) <= 0 and (self.stats.conditions.sword_cooldown+4)<=0:
+                if self.stats.name == 'PLAYER':      self.PLAYER_controller()
+                if 'GUY' in self.stats.name:         self.AI_controller()
 
-            if setup.mouse_keyboard.ULTIMATE_POWER and self.vars.conditions.ULTI_cooldown<0:
-                if self.vars.weapons.up=="CIRCLE": 
-                    self.vars.conditions.ULTI_cooldown = 500
-                    self.vars.conditions.max_ULTI_cooldown = 500
-                    entity_summoner.summon_CIRCLE(n=36, startXY=self.vars.pos.xy, owner=self.vars.name)
-                elif self.vars.weapons.up=="HEAL": 
-                    self.vars.conditions.ULTI_cooldown = 500
-                    self.vars.conditions.max_ULTI_cooldown = 500
-                    self.vars.conditions.ULTI_healing = 200
-                elif self.vars.weapons.up=="TELE": 
-                    self.vars.conditions.ULTI_cooldown = 200
-                    self.vars.conditions.max_ULTI_cooldown = 200
-                    lists.slow_motion = True
-                elif self.vars.weapons.up=="INVIS": 
-                    self.vars.conditions.ULTI_cooldown = 500
-                    self.vars.conditions.max_ULTI_cooldown = 500
-                    self.vars.conditions.ULTI_invis = 400
-                    self.vars.alpha_fade = 100
+            self.trigger_ULTI()
 
-            if self.vars.conditions.ULTI_invis<0:
-                    self.vars.alpha_fade = 255
+            if self.stats.conditions.ULTI_invis<0:
+                self.stats.alpha_fade = 255
 
-            if self.vars.conditions.ball_dead and self.vars.inputs.try_throw_fireball:
-                if self.vars.weapons.fireball=="one":   self.vars.dir = entity_summoner.summon_fireball(self.vars.pos.xy, self.vars.inputs.fireball_target.xy, self.vars.inputs.throw_mod, owner=self.vars.name)
-                if self.vars.weapons.fireball=="wave":  self.vars.dir = entity_summoner.summon_fireball_wave(pos_mod=5,dir_mod=10, speed_mod=32, time_mod=0.2, startXY=self.vars.pos.xy, endXY=self.vars.inputs.fireball_target.xy, throw_mod=self.vars.inputs.throw_mod, owner=self.vars.name)
-                self.vars.conditions.throw_cooldown = 5
-            elif (self.vars.conditions.sword_cooldown+4)<=0 and self.vars.inputs.try_sword:
-                self.vars.conditions.sword_cooldown = 5
+            if self.stats.conditions.ball_dead and self.stats.inputs.try_throw_fireball:
+                if self.stats.weapons.fireball=="one":   self.stats.dir = entity_summoner.summon_fireball(self.stats.pos, self.stats.inputs.fireball_target, self.stats.inputs.throw_mod, owner=self.stats.name)
+                if self.stats.weapons.fireball=="wave":  self.stats.dir = entity_summoner.summon_fireball_wave(self.stats.pos, self.stats.inputs.fireball_target, self.stats.inputs.throw_mod, owner=self.stats.name)
+                self.stats.conditions.throw_cooldown = 5
+            elif (self.stats.conditions.sword_cooldown+4)<=0 and self.stats.inputs.try_sword:
+                self.stats.conditions.sword_cooldown = 5
 
             self.movement()
 
             self.hit()
             
         else:
-            self.vars.alpha_fade -= 20
-            if self.vars.alpha_fade <=0: lists.KILL_entity(self.vars.name)
+            self.stats.alpha_fade -= 20
+            if self.stats.alpha_fade <=0: lists.KILL_entity(self.stats.name)
 
     def PLAYER_controller(self):
         "Getting the Controls of the Player Charakter/User."
-        self.vars.inputs.throw_mod = random.randint(-10, 10) * lists.hardness
-        self.vars.inputs.joystick.xy = setup.mouse_keyboard.joystick.xy
-        if self.vars.weapons.fireball != False: self.vars.inputs.try_throw_fireball = setup.mouse_keyboard.right_click
-        self.vars.inputs.fireball_target = mthd.Position(setup.mouse_keyboard.mouse_custom_pos.x, setup.mouse_keyboard.mouse_custom_pos.y)
-        self.vars.inputs.fireball_target.add(setup.camera_pos.x, setup.camera_pos.y)
-        self.vars.inputs.try_sword = setup.mouse_keyboard.spacebar
-        self.vars.inputs.try_dash = setup.mouse_keyboard.shift
-        self.vars.inputs.ULTI = setup.mouse_keyboard.ULTIMATE_POWER
-        if self.vars.inputs.try_dash:
-            self.vars.conditions.dash_cooldown += 1
-            if self.vars.conditions.dash_cooldown<0 and self.vars.inputs.joystick.xy != (0,0):
-                self.vars.conditions.velocity_time = 20
-                self.vars.conditions.dash_cooldown = 40
-                self.vars.conditions.velocity_dir.xy = self.vars.inputs.joystick.xy
+        self.stats.inputs.throw_mod = random.randint(-10, 10) * lists.hardness
+        self.stats.inputs.joystick.xy = setup.mouse_keyboard.joystick.xy
+        if self.stats.weapons.fireball != False: self.stats.inputs.try_throw_fireball = setup.mouse_keyboard.right_click
+        self.stats.inputs.fireball_target = mthd.Position(setup.mouse_keyboard.mouse_custom_pos.x, setup.mouse_keyboard.mouse_custom_pos.y)
+        self.stats.inputs.fireball_target.add(setup.camera_pos.x, setup.camera_pos.y)
+        self.stats.inputs.try_sword = setup.mouse_keyboard.spacebar
+        self.stats.inputs.try_dash = setup.mouse_keyboard.shift
+        self.stats.inputs.ULTI = setup.mouse_keyboard.ULTIMATE_POWER
+        if self.stats.inputs.try_dash:
+            self.stats.conditions.dash_cooldown += 1
+            if self.stats.conditions.dash_cooldown<0 and self.stats.inputs.joystick.xy != (0,0):
+                self.stats.conditions.velocity_time = 20
+                self.stats.conditions.dash_cooldown = 40
+                self.stats.conditions.velocity_dir.xy = self.stats.inputs.joystick.xy
     
     def AI_controller(self):
         "Getting the Controls of the AI charakter, this includes walking, fireball throwing and fireball deflecting (sword)."
         possible_targets = []
         dists = {}
-        if not "!G!" == self.vars.target_ent[0]:
-            possible_targets = self.vars.target_ent
+        if not "!G!" == self.stats.target_ent[0]:
+            possible_targets = self.stats.target_ent
         else:
-            for enemy in self.vars.target_ent[1:]:
+            for enemy in self.stats.target_ent[1:]:
                 for name in lists.alive_entitys:
                     if (enemy in name) and not ("fireball" in name):
                         possible_targets.append(name)
         for target in possible_targets:
             try:
-                if not (lists.name_dict[target]).vars.conditions.dead and not ((lists.name_dict[target]).vars.conditions.ULTI_invis>0):
-                        dists[math.dist(self.vars.pos.xy, (lists.name_dict[target]).vars.pos.xy)] = target
+                if not (lists.name_dict[target]).stats.conditions.dead and ((lists.name_dict[target]).stats.conditions.ULTI_invis<0):
+                        dist = math.dist(self.stats.pos.xy, (lists.name_dict[target]).stats.pos.xy)
+                        if dist < self.stats.view_distance:
+                            dists[dist] = target
             except KeyError:  pass
         if len(dists)>0:
             self.target_name = dists[(sorted((list(dists))))[0]]
-            self.vars.inputs.fireball_target = (lists.name_dict[self.target_name]).vars.pos
-        else: return
+            self.stats.inputs.fireball_target = (lists.name_dict[self.target_name]).stats.pos
+            if not self.target_name in lists.pathfinding_requests:
+                lists.pathfinding_requests.append(self.target_name)
+        else: 
+            try:
+                if (round(self.last_pos.x, 1),round(self.last_pos.y, 1)) == (round(self.stats.pos.x, 1), round(self.stats.pos.y, 1)):
+                    self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
+            except AttributeError: pass
+            self.last_pos = mthd.Position(self.stats.pos.x, self.stats.pos.y)
 
-        if self.vars.weapons.sword:
+            try: self.patrol_point_number
+            except AttributeError: self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
+
+            try: targetpos = (lists.path_dict[self.target_name], int(self.stats.pos.y//32), int(self.stats.pos.x//32))
+            except KeyError: pass
+            # print(str(self.stats.name) + " | Target: " + str(self.target_name) + " of " + str(lists.number_of_patrol_points))
+            if lists.current_map[targetpos] == "!!!": self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
+            self.target_name = "Patrol Point "+str(self.patrol_point_number)
+
+        if self.stats.weapons.sword:
             dont_try_fireball = self.AI__sword_controller()
             if dont_try_fireball=="r":return
         else:
             dont_try_fireball = False
         
-        direct, dir = self.AI__fireball_and_direct_path_controller((self.vars.weapons.fireball!=False), dont_try_fireball)
+        if "Patrol Point " in self.target_name:
+            direct = False
+        else:
+            direct, dir = self.AI__fireball_and_direct_path_controller((self.stats.weapons.fireball!=False), dont_try_fireball)
 
         if not direct: dir = self.AI__pathgrid_controller()
 
-        self.vars.inputs.joystick.xy = mthd.maths.sin(dir), mthd.maths.cos(dir)   
+        self.stats.inputs.joystick.xy = mthd.maths.sin(dir), mthd.maths.cos(dir)   
           
     def AI__sword_controller(self):
-        collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox+256, self.vars.name, 'fireball')
-        collision2, name2 = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox*3.5, self.vars.name, 'HUM')
+        collision, name = ent.Collisions.n_specific_hitbox__type(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox+256, self.stats.name, 'fireball')
+        collision2, name2 = ent.Collisions.n_specific_hitbox__type(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox*3.5, self.stats.name, 'HUM')
         if collision: #FIREBALL DEFENSE
-            collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox+6, self.vars.name, 'fireball')
+            collision, name = ent.Collisions.n_specific_hitbox__type(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox+6, self.stats.name, 'fireball')
             if collision and random.randint(1,3)!=1:
-                self.vars.dir = int((math.degrees((lists.name_dict[name]).vars.dir)-45)//90*90%360)
-                self.vars.dir = mthd.maths.transform_direction(self.vars.dir)
-                self.vars.inputs.try_sword = True
+                self.stats.dir = int((math.degrees((lists.name_dict[name]).stats.dir)-45)//90*90%360)
+                self.stats.dir = mthd.maths.transform_direction(self.stats.dir)
+                self.stats.inputs.try_sword = True
                 return "r"
             return True
         if collision2 and random.randint(1,10)==1 and (name2 in self.target_name):  #MEELE
-            atan2dir= (mthd.maths.atan3(lists.name_dict[name2].vars.pos.x - self.vars.pos.x, lists.name_dict[name2].vars.pos.y - self.vars.pos.y)-270) % 360
+            atan2dir= (mthd.maths.atan3(lists.name_dict[name2].stats.pos.x - self.stats.pos.x, lists.name_dict[name2].stats.pos.y - self.stats.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)
             dir = mthd.maths.transform_direction(dir)
-            self.vars.dir = int(dir)
-            self.vars.inputs.try_sword = True
+            self.stats.dir = int(dir)
+            self.stats.inputs.try_sword = True
             return "r"
         return False
     def AI__pathgrid_controller(self):
-        if not self.target_name in lists.pathfinding_requests:
-            lists.pathfinding_requests.append(self.target_name)
         try:
-            targetpos = (lists.path_dict[self.target_name], int(self.vars.pos.y//32), int(self.vars.pos.x//32))
+            targetpos = (lists.path_dict[self.target_name], int(self.stats.pos.y//32), int(self.stats.pos.x//32))
         except KeyError:
             print(setup.ticks, self.target_name)
             return 0
         targetval = lists.current_map[targetpos]
-        if targetval == '###' or targetval == 'QQQ':     return mthd.maths.atan4(self.vars.inputs.fireball_target.x - self.vars.pos.x, self.vars.inputs.fireball_target.y - self.vars.pos.y) 
+        if targetval == '###' or targetval == 'QQQ':     return mthd.maths.atan4(self.stats.inputs.fireball_target.x - self.stats.pos.x, self.stats.inputs.fireball_target.y - self.stats.pos.y) 
+        elif targetval == "!!!": return 0
         else:
             try:        dir = (int(targetval) +180) % 360
             except:     print(targetval); print((0/0))
             target = mthd.Position(targetpos[2] * 32 + 32 * int(mthd.maths.sin(dir)) + 16,   targetpos[1] * 32 + 32 * int(mthd.maths.cos(dir)) + 16)
-            return (mthd.maths.atan3(target.x - self.vars.pos.x, self.vars.pos.y - target.y)-270)%360
+            return (mthd.maths.atan3(target.x - self.stats.pos.x, self.stats.pos.y - target.y)-270)%360
     def AI__fireball_and_direct_path_controller(self, fireball, dont_try_fireball):
-        currentPos = mthd.Position(self.vars.pos.x, self.vars.pos.y)
-        dir = mthd.maths.atan4(self.vars.inputs.fireball_target.x - currentPos.x, self.vars.inputs.fireball_target.y - currentPos.y)
+        currentPos = mthd.Position(self.stats.pos.x, self.stats.pos.y)
+        dir = mthd.maths.atan4(self.stats.inputs.fireball_target.x - currentPos.x, self.stats.inputs.fireball_target.y - currentPos.y)
         while True:
-            dist = math.dist(currentPos.xy, self.vars.inputs.fireball_target.xy)
+            dist = math.dist(currentPos.xy, self.stats.inputs.fireball_target.xy)
             if dist < 8:
-                dist = math.dist(self.vars.inputs.fireball_target.xy, self.vars.pos.xy)
-                if dist <= 256 and (self.vars.name + '_fireball' not in str(lists.alive_entitys)) and not dont_try_fireball:         #setup.map_width * setup.delta * 300:
-                    self.vars.inputs.try_throw_fireball = fireball
-                    self.vars.inputs.throw_mod = random.randint(-lists.entity_presision, lists.entity_presision)
+                dist = math.dist(self.stats.inputs.fireball_target.xy, self.stats.pos.xy)
+                if dist <= 256 and (self.stats.name + '_fireball' not in str(lists.alive_entitys)) and not dont_try_fireball:         #setup.map_width * setup.delta * 300:
+                    self.stats.inputs.try_throw_fireball = fireball
+                    self.stats.inputs.throw_mod = random.randint(-lists.entity_presision, lists.entity_presision)
                 return True, dir 
             currentPos.add(mthd.maths.sin(dir) * 6, mthd.maths.cos(dir) * 6)
             if ent.Collisions.colides(currentPos.x, currentPos.y, 8): return False, dir
@@ -171,218 +180,246 @@ class HUMANOID:
     def hit(self):
         attacker = self.ball_hit()
         attacker2 = self.sword_hit()
-        if self.vars.hp<=0:
-            self.vars.conditions.dead = True
+        if self.stats.hp<=0:
+            self.stats.conditions.dead = True
             if attacker ==  None:
-                (lists.name_dict[attacker2]).vars.conditions.vamp_healing = 30
+                (lists.name_dict[attacker2]).stats.conditions.vamp_healing = 30
             if attacker2 == None:
-                (lists.name_dict[attacker]).vars.conditions.vamp_healing = 30
+                (lists.name_dict[attacker]).stats.conditions.vamp_healing = 30
         else:
-            if self.vars.conditions.vamp_healing > 0:
-                self.vars.hp += 0.1
-                if self.vars.hp > self.vars.max_hp: self.vars.hp = self.vars.max_hp
-                self.vars.conditions.vamp_healing -= 1
-            if self.vars.conditions.ULTI_healing > 0:
-                self.vars.hp += 0.5
-                if self.vars.hp > self.vars.max_hp: self.vars.hp = self.vars.max_hp
-                self.vars.conditions.ULTI_healing -= 1
+            if self.stats.conditions.vamp_healing > 0:
+                self.stats.hp += 0.1
+                if self.stats.hp > self.stats.max_hp: self.stats.hp = self.stats.max_hp
+                self.stats.conditions.vamp_healing -= 1
+            if self.stats.conditions.ULTI_healing > 0:
+                self.stats.hp += 0.5
+                if self.stats.hp > self.stats.max_hp: self.stats.hp = self.stats.max_hp
+                self.stats.conditions.ULTI_healing -= 1
         if setup.ticks%300==0:
-            self.vars.hp += 1
-            if self.vars.hp > self.vars.max_hp: self.vars.hp = self.vars.max_hp
+            self.stats.hp += 1
+            if self.stats.hp > self.stats.max_hp: self.stats.hp = self.stats.max_hp
 
     def ball_hit(self):
         "Code for detcting if a Humanoid is hit by a fireball and checking if they deflect it sucessfully."
-        collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox, self.vars.name, 'fireball')
-        if collision and self.vars.conditions.invulenarbility < 0: 
-            otherdir = (math.degrees((lists.name_dict[name]).vars.dir)+135)//90*90       
-            owndir = (self.vars.dir+360)%360
-            self.vars.conditions.invulenarbility = 20
-            owner = (lists.name_dict[name]).vars.owner
-            if self.vars.conditions.ULTI_healing > 0 or (self.vars.conditions.sword_cooldown>0 and (otherdir != owndir) and not(self.vars.conditions.blocked>14) and (random.randint(1,5)!=1) and not (lists.name_dict[name]).unblock): 
-                amaing = ((mthd.maths.atan3((self.vars.inputs.fireball_target.x - self.vars.pos.x), (self.vars.inputs.fireball_target.y - self.vars.pos.y)))+90) + random.randint(-25, 25)  #math.degrees((setup.name_dict[name]).dir)
-                entity_summoner.summon_fireball__actual(len(lists.name_dict)+1, (0,0), amaing-90, 300, (lists.name_dict[name]).vars.pos.xy, self.vars.name, 1, optional_name="REVENGE_fireball"+str(len(lists.name_dict)+1))
-                (lists.name_dict[name]).vars.conditions.animation_invisible = True 
-                self.vars.conditions.blocked += 2
-                if self.vars.conditions.blocked>=16: self.vars.conditions.blocked = 16
+        collision, name = ent.Collisions.n_specific_hitbox__type(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox, self.stats.name, 'fireball')
+        if collision and self.stats.conditions.invulenarbility < 0: 
+            otherdir = (math.degrees((lists.name_dict[name]).stats.dir)+135)//90*90       
+            owndir = (self.stats.dir+360)%360
+            self.stats.conditions.invulenarbility = 20
+            owner = (lists.name_dict[name]).stats.owner
+            if self.stats.conditions.ULTI_healing > 0 or (self.stats.conditions.sword_cooldown>0 and (otherdir != owndir) and not(self.stats.conditions.blocked>14) and (random.randint(1,5)!=1) and not (lists.name_dict[name]).stats.unblock):
+                amaing = ((mthd.maths.atan3((self.stats.inputs.fireball_target.x - self.stats.pos.x), (self.stats.inputs.fireball_target.y - self.stats.pos.y)))+90) + random.randint(-25, 25)  #math.degrees((setup.name_dict[name]).dir)
+                entity_summoner.summon_fireball__actual(len(lists.name_dict)+1, (0,0), amaing-90, 300, (lists.name_dict[name]).stats.pos.xy, self.stats.name, 1, optional_name="REVENGE_fireball"+str(len(lists.name_dict)+1))
+                (lists.name_dict[name]).stats.conditions.animation_invisible = True 
+                self.stats.conditions.blocked += 2
+                if self.stats.conditions.blocked>=16: self.stats.conditions.blocked = 16
                 lists.KILL_entity(name)
             else:
-                self.vars.conditions.stunned = 20; self.vars.hp -= lists.name_dict[name].damage
-                dir = abs(mthd.maths.atan3(lists.name_dict[name].vars.pos.x - self.vars.pos.x, lists.name_dict[name].vars.pos.y - self.vars.pos.y)-270) % 360
-                self.vars.conditions.velocity_dir.xy = (mthd.maths.sin(dir), mthd.maths.cos(dir));     self.vars.conditions.velocity_time = 20
-                self.vars.dir = mthd.find_dir.find_direction_knockback(dir)
+                self.stats.conditions.stunned = 20; self.stats.hp -= lists.name_dict[name].stats.damage
+                dir = abs(mthd.maths.atan3(lists.name_dict[name].stats.pos.x - self.stats.pos.x, lists.name_dict[name].stats.pos.y - self.stats.pos.y)-270) % 360
+                self.stats.conditions.velocity_dir.xy = (mthd.maths.sin(dir), mthd.maths.cos(dir));     self.stats.conditions.velocity_time = 20
+                self.stats.dir = mthd.find_dir.find_direction_knockback(dir)
             return owner
 
     def sword_hit(self):
-        collision, name = ent.Collisions.n_specific_hitbox__type(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox*3.5, self.vars.name, 'HUM')
-        if collision and (lists.name_dict[name]).vars.conditions.sword_cooldown>0:
-            atan2dir= (mthd.maths.atan3(lists.name_dict[name].vars.pos.x - self.vars.pos.x, lists.name_dict[name].vars.pos.y - self.vars.pos.y)-270) % 360
+        collision, name = ent.Collisions.n_specific_hitbox__type(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox*3.5, self.stats.name, 'HUM')
+        if collision and (lists.name_dict[name]).stats.conditions.sword_cooldown>0:
+            atan2dir= (mthd.maths.atan3(lists.name_dict[name].stats.pos.x - self.stats.pos.x, lists.name_dict[name].stats.pos.y - self.stats.pos.y)-270) % 360
             dir = (((atan2dir+45)//90*90)%360)  
             dir = mthd.maths.transform_direction(dir)
-            if (dir!=(lists.name_dict[name]).vars.dir) and self.vars.conditions.sword_cooldown<0 and self.vars.conditions.invulenarbility<0:
-                self.vars.conditions.stunned = 15 - ((self.vars.conditions.ULTI_healing>0)*10) - self.vars.conditions.exp_stunning_backoff
-                damage = (4 - self.vars.conditions.exp_stunning_backoff)
+            if (dir!=(lists.name_dict[name]).stats.dir) and self.stats.conditions.sword_cooldown<0 and self.stats.conditions.invulenarbility<0:
+                self.stats.conditions.stunned = 15 - ((self.stats.conditions.ULTI_healing>0)*10) - self.stats.conditions.exp_stunning_backoff
+                damage = (4 - self.stats.conditions.exp_stunning_backoff)
                 if damage < 1 : damage = 1
-                self.vars.hp -= damage + ((lists.name_dict[name]).vars.conditions.dash_cooldown>30)*3
-                self.vars.conditions.velocity_dir.xy = (-mthd.maths.sin(atan2dir), mthd.maths.cos(atan2dir));     
-                self.vars.conditions.velocity_time = 15; self.vars.conditions.invulenarbility = 15
-                self.vars.conditions.exp_stunning_backoff *= 2
-                self.vars.dir = int((((lists.name_dict[name]).vars.dir)+180)%360)
-                self.vars.dir = mthd.maths.transform_direction(self.vars.dir)
+                self.stats.hp -= damage + ((lists.name_dict[name]).stats.conditions.dash_cooldown>30)*3
+                self.stats.conditions.velocity_dir.xy = (-mthd.maths.sin(atan2dir), mthd.maths.cos(atan2dir));     
+                self.stats.conditions.velocity_time = 15; self.stats.conditions.invulenarbility = 15
+                self.stats.conditions.exp_stunning_backoff *= 2
+                self.stats.dir = int((((lists.name_dict[name]).stats.dir)+180)%360)
+                self.stats.dir = mthd.maths.transform_direction(self.stats.dir)
             return name
-        if self.vars.conditions.exp_stunning_backoff>2: self.vars.conditions.exp_stunning_backoff -= 1
+        if self.stats.conditions.exp_stunning_backoff>2: self.stats.conditions.exp_stunning_backoff -= 1
                 
     def draw(self):
         """Finding the correct animation frame and drawing it on screen."""
         self.humanoid_image()
-        if lists.slow_motion and self.vars.name == "PLAYER":
+        
+        if lists.slow_motion and self.stats.name == "PLAYER":
             img = (ent.visuals.load_image("img/ULTI_/teleporter"+str(setup.ticks%60)))
-            ent.visuals.blit(img, (self.vars.pos.x - 48-2), (self.vars.pos.y - 50))
+            ent.visuals.blit(img, (self.stats.pos.x - 48-2), (self.stats.pos.y - 50))
+        if self.stats.conditions.plop_animation<30:
+            a = (ent.visuals.load_image("img//ULTI_/plop" + str(int(self.stats.conditions.plop_animation))))
+            ent.visuals.blit(a,(self.stats.pos.x - 48), (self.stats.pos.y - 48))
+        self.stats.conditions.plop_animation += 2
 
-        if self.vars.conditions.plop_animation<30:
-            a = (ent.visuals.load_image("img//ULTI_/plop" + str(int(self.vars.conditions.plop_animation))))
-            ent.visuals.blit(a,(self.vars.pos.x - 48), (self.vars.pos.y - 48))
-        self.vars.conditions.plop_animation += 2
+        ent.visuals.blit(self.humanoid_img, (self.stats.pos.x - 48), (self.stats.pos.y - 48))
 
-        ent.visuals.blit(self.humanoid_img, (self.vars.pos.x - 48), (self.vars.pos.y - 48))
-
-        if self.vars.conditions.ULTI_healing > 0:
+        if self.stats.conditions.ULTI_healing > 0:
             img = (ent.visuals.load_image("img/ULTI_/healing"+str(setup.ticks%90)))
-            ent.visuals.blit(img, (self.vars.pos.x - 48), (self.vars.pos.y - 50))
+            ent.visuals.blit(img, (self.stats.pos.x - 48), (self.stats.pos.y - 50))
 
-        ent.visuals.blit(self.head, (self.vars.pos.x - 48), (self.vars.pos.y - 48))
+        ent.visuals.blit(self.head, (self.stats.pos.x - 48), (self.stats.pos.y - 48))
 
-        color_ = (25.5*abs(self.vars.hp-self.vars.max_hp), 25.5*self.vars.hp, 0)
+        color_ = (25.5*abs(self.stats.hp-self.stats.max_hp), 25.5*self.stats.hp, 0)
         color = []
         for val in color_:
             if val < 0: color.append(0)
             elif val > 255: color.append(255)
             else: color.append(val)
-        width = 5*self.vars.hp
+        width = 5*self.stats.hp
 
-        pygame.draw.rect(setup.screen,(20,24,46), pygame.Rect((self.vars.pos.x - 22-setup.camera_pos.x), (self.vars.pos.y - 38-setup.camera_pos.y), 50, 8))
+        pygame.draw.rect(setup.screen,(20,24,46), pygame.Rect((self.stats.pos.x - 22-setup.camera_pos.x), (self.stats.pos.y - 38-setup.camera_pos.y), 50, 8))
         try:
-            pygame.draw.rect(setup.screen, color, pygame.Rect((self.vars.pos.x - 22-setup.camera_pos.x), (self.vars.pos.y - 38-setup.camera_pos.y), width, 8))
+            pygame.draw.rect(setup.screen, color, pygame.Rect((self.stats.pos.x - 22-setup.camera_pos.x), (self.stats.pos.y - 38-setup.camera_pos.y), width, 8))
         except ValueError:
             print(color)
         a = (ent.visuals.load_image("img/icons_/health_bar_empty"))
-        ent.visuals.blit(a,(self.vars.pos.x - 24), (self.vars.pos.y - 40))
-        if self.vars.name == "PLAYER":
-            n = (self.vars.conditions.max_ULTI_cooldown - self.vars.conditions.ULTI_cooldown)//(self.vars.conditions.max_ULTI_cooldown/8)
+        ent.visuals.blit(a,(self.stats.pos.x - 24), (self.stats.pos.y - 40))
+        if self.stats.name == "PLAYER":
+            n = (self.stats.conditions.max_ULTI_cooldown - self.stats.conditions.ULTI_cooldown)//(self.stats.conditions.max_ULTI_cooldown/8)
             if n>8: n = 8
             a = (ent.visuals.load_image("img/icons_/ULTI_icon" + str(int(n))))
-            ent.visuals.blit(a,(self.vars.pos.x - 4), (self.vars.pos.y - 54))
-            #ent.visuals.blit(a,(self.vars.pos.x + 32), (self.vars.pos.y - setup.map_width))
+            ent.visuals.blit(a,(self.stats.pos.x - 4), (self.stats.pos.y - 54))
 
     def movement(self):
         """Moving the humanoid in the correct way: controlling voluntry diagonal movement, involuntry movement, respective of the delta value and checking for collisions with the level."""
-        modif = (abs(self.vars.inputs.joystick.x) + abs(self.vars.inputs.joystick.y)) ** 0.5
+        modif = (abs(self.stats.inputs.joystick.x) + abs(self.stats.inputs.joystick.y)) ** 0.5
         if modif == 0:      modif = 1
-        self.move.x = self.vars.inputs.joystick.x * self.vars.move_speed * setup.delta / modif 
-        self.move.y = self.vars.inputs.joystick.y * self.vars.move_speed * setup.delta / modif 
+        self.move.x = self.stats.inputs.joystick.x * self.stats.move_speed * setup.delta / modif 
+        self.move.y = self.stats.inputs.joystick.y * self.stats.move_speed * setup.delta / modif 
         
-        if self.vars.conditions.velocity_time > 0:
-            self.move.x += self.vars.conditions.velocity_dir.x * self.vars.conditions.velocity_time ** 2 / 2 * setup.delta
-            if self.move.x == 0:    self.vars.conditions.velocity_dir.xy = (0, self.vars.conditions.velocity_dir.y)
+        if self.stats.conditions.velocity_time > 0:
+            self.move.x += self.stats.conditions.velocity_dir.x * self.stats.conditions.velocity_time ** 2 / 2 * setup.delta
+            if self.move.x == 0:    self.stats.conditions.velocity_dir.xy = (0, self.stats.conditions.velocity_dir.y)
 
-            self.move.y += self.vars.conditions.velocity_dir.y * self.vars.conditions.velocity_time ** 2 / 2 * setup.delta
-            if self.move.y == 0:    self.vars.conditions.velocity_dir.xy = (self.vars.conditions.velocity_dir.x, 0)
+            self.move.y += self.stats.conditions.velocity_dir.y * self.stats.conditions.velocity_time ** 2 / 2 * setup.delta
+            if self.move.y == 0:    self.stats.conditions.velocity_dir.xy = (self.stats.conditions.velocity_dir.x, 0)
         
-        if self.vars.inputs.joystick.x!=0 or self.vars.inputs.joystick.y!=0: 
-            self.vars.dir = mthd.find_dir.find_direction__moved(self.vars.inputs.joystick.x, self.vars.inputs.joystick.y)
+        if self.stats.inputs.joystick.x!=0 or self.stats.inputs.joystick.y!=0: 
+            self.stats.dir = mthd.find_dir.find_direction__moved(self.stats.inputs.joystick.x, self.stats.inputs.joystick.y)
         
-        hitboxX = ent.Collisions.hitbox(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox, self.vars.name)
-        hitboxY = ent.Collisions.hitbox(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox, self.vars.name)
-        self.vars.pos.x += self.move.x * int(ent.Collisions.n_colides(self.vars.pos.x + self.move.x, self.vars.pos.y, self.vars.hitbox)) * int(hitboxX)
-        self.vars.pos.y += self.move.y * int(ent.Collisions.n_colides(self.vars.pos.x, self.vars.pos.y + self.move.y, self.vars.hitbox)) * int(hitboxY)
+        hitboxX = ent.Collisions.hitbox(self.stats.pos.x + self.move.x, self.stats.pos.y, self.stats.hitbox, self.stats.name)
+        hitboxY = ent.Collisions.hitbox(self.stats.pos.x, self.stats.pos.y + self.move.y, self.stats.hitbox, self.stats.name)
+        self.stats.pos.x += self.move.x * int(ent.Collisions.n_colides(self.stats.pos.x + self.move.x, self.stats.pos.y, self.stats.hitbox)) * int(hitboxX)
+        self.stats.pos.y += self.move.y * int(ent.Collisions.n_colides(self.stats.pos.x, self.stats.pos.y + self.move.y, self.stats.hitbox)) * int(hitboxY)
 
     def humanoid_image(self): #(<PATH> + 'HUMANOID' + animation + dir + '.' + frame + '.png')
         """Finding the correct humanoid animation frame: Either Idle, throw, sword or walking. It also sets the head image."""
-        if self.vars.conditions.sword_cooldown > 0:
-            self.humanoid_img = 'HUMANOID' + "sword" + str(abs(self.vars.dir)) + '.' + str(int(5 - self.vars.conditions.sword_cooldown))
-        elif self.vars.conditions.throw_cooldown > 0:
-            self.humanoid_img = 'HUMANOID' + "throw" + str(abs(self.vars.dir)) + '.' + str(int(5 - self.vars.conditions.throw_cooldown))
-        elif (self.vars.inputs.joystick.x == 0 and self.vars.inputs.joystick.y == 0) or (self.move.x == 0 and self.move.y == 0):
-            self.humanoid_img = 'HUMANOID' + "idle" + str(abs(self.vars.dir)) + '.' + str(0)
-        elif self.vars.conditions.velocity_time > 0:
-            self.humanoid_img = 'HUMANOID' + "dash" + str(abs(self.vars.dir)) + '.' + str(0)
+        if self.stats.conditions.sword_cooldown > 0:
+            self.humanoid_img = 'HUMANOID' + "sword" + str(abs(self.stats.dir)) + '.' + str(int(5 - self.stats.conditions.sword_cooldown))
+        elif self.stats.conditions.throw_cooldown > 0:
+            self.humanoid_img = 'HUMANOID' + "throw" + str(abs(self.stats.dir)) + '.' + str(int(5 - self.stats.conditions.throw_cooldown))
+        elif (self.stats.inputs.joystick.x == 0 and self.stats.inputs.joystick.y == 0) or (self.move.x == 0 and self.move.y == 0):
+            self.humanoid_img = 'HUMANOID' + "idle" + str(abs(self.stats.dir)) + '.' + str(0)
+        elif self.stats.conditions.velocity_time > 0:
+            self.humanoid_img = 'HUMANOID' + "dash" + str(abs(self.stats.dir)) + '.' + str(0)
         else:
-            self.humanoid_img = 'HUMANOID' + "walk" + str(abs(self.vars.dir)) + '.' + str(self.humanoid_frame)
-        self.humanoid_img = ent.visuals.load_image((self.vars.IMG_PATH_body + self.humanoid_img), self.vars.dir == -90, False, self.vars.alpha_fade)
-        self.head = ent.visuals.load_image((self.vars.IMG_PATH_head + str(self.vars.nick_name) + 'head' + str(abs(self.vars.dir))), self.vars.dir == -90, False, self.vars.alpha_fade)
+            self.humanoid_img = 'HUMANOID' + "walk" + str(abs(self.stats.dir)) + '.' + str(self.humanoid_frame)
+        self.humanoid_img = ent.visuals.load_image((self.stats.IMG_PATH_body + self.humanoid_img), self.stats.dir == -90, False, self.stats.alpha_fade)
+        self.head = ent.visuals.load_image((self.stats.IMG_PATH_head + str(self.stats.nick_name) + 'head' + str(abs(self.stats.dir))), self.stats.dir == -90, False, self.stats.alpha_fade)
 
     def update_and_reset(self):
         "Updating and reseting essential variables."
-        self.vars.conditions.ULTI_invis -= 1
+        self.stats.conditions.ULTI_invis -= 1
         self.move = mthd.Position(0, 0)
-        self.vars.conditions.throw_cooldown -= 0.2;   self.vars.conditions.sword_cooldown -= 0.4;   self.vars.conditions.stunned -= 1;     self.vars.conditions.velocity_time -= 1;     self.vars.conditions.invulenarbility -= 1
-        self.humanoid_frame = int(setup.ticks / 10) % 6     ;   self.vars.conditions.blocked -= 0.025   ; self.vars.conditions.dash_cooldown -= 1
-        if self.vars.conditions.blocked<=1: self.vars.conditions.blocked = 1
-        self.vars.conditions.ball_dead = self.vars.name + '_fireball' not in str(lists.alive_entitys)
-        self.vars.conditions.ULTI_cooldown -= 1
-        self.vars.inputs.RESET()
+        self.stats.conditions.throw_cooldown -= 0.2;   self.stats.conditions.sword_cooldown -= 0.4;   self.stats.conditions.stunned -= 1;     self.stats.conditions.velocity_time -= 1;     self.stats.conditions.invulenarbility -= 1
+        self.humanoid_frame = int(setup.ticks / 10) % 6     ;   self.stats.conditions.blocked -= 0.025   ; self.stats.conditions.dash_cooldown -= 1
+        if self.stats.conditions.blocked<=1: self.stats.conditions.blocked = 1
+        self.stats.conditions.ball_dead = self.stats.name + '_fireball' not in str(lists.alive_entitys)
+        self.stats.conditions.ULTI_cooldown -= 1
+        self.stats.inputs.RESET()
+
+    def trigger_ULTI(self):
+        if setup.mouse_keyboard.ULTIMATE_POWER and self.stats.conditions.ULTI_cooldown<0:
+            if self.stats.weapons.up=="CIRCLE": 
+                self.stats.conditions.ULTI_cooldown = 500
+                self.stats.conditions.max_ULTI_cooldown = 500
+                entity_summoner.summon_CIRCLE(n=36, startXY=self.stats.pos, owner=self.stats.name)
+            elif self.stats.weapons.up=="HEAL": 
+                self.stats.conditions.ULTI_cooldown = 500
+                self.stats.conditions.max_ULTI_cooldown = 500
+                self.stats.conditions.ULTI_healing = 200
+            elif self.stats.weapons.up=="TELE": 
+                self.stats.conditions.ULTI_cooldown = 200
+                self.stats.conditions.max_ULTI_cooldown = 200
+                lists.slow_motion = True
+            elif self.stats.weapons.up=="INVIS": 
+                self.stats.conditions.ULTI_cooldown = 500
+                self.stats.conditions.max_ULTI_cooldown = 500
+                self.stats.conditions.ULTI_invis = 400
+                self.stats.alpha_fade = 100
+
 
 class FIRE_BALL:
     "The Fireball class."
-    def __init__(self, start_x, start_y, dir, name, speed_mod, killtimer, invulnerability, owner, damage_mult, unblock):
+    def __init__(self, stats_block, startXY, dir, name, speed_mod, owner):
         """Intialising the fireball Entity. Setting up the fireballs speed, dir, position, image and cooldown variables."""
-        self.vars = ent.basic_entity_variables((start_x, start_y), speed_mod, math.radians(dir), 3, name, owner=owner)
-        self.type = "fireball"
+        self.stats = json.loads(json.dumps((lists.stats["fireball"][stats_block])), object_hook=lambda item: SimpleNamespace(**item)) #Dark Magic
+        self.stats.pos = startXY
+        self.stats.move_speed += speed_mod
+        self.stats.dir = math.radians(dir)
+        self.stats.name = name
+        self.stats.owner = owner
         self.death_dir = 90 * random.randint(1, 4)
-        self.vars.conditions.invulenarbility = invulnerability
-        self.vars.conditions.counter_till_death = 5
         self.image = pygame.transform.rotate(pygame.image.load('img/fireball_/fireball.png'), -dir)
-        self.kill_timer = killtimer
-        self.size_mod = 64
-        self.damage = damage_mult
-        self.unblock = unblock
 
     def tick(self):
         """Ticking the fireball: Moving it and checking for (deadly) colisions."""
         if lists.slow_motion: return
-        if self.vars.conditions.dead: 
-            if self.vars.conditions.counter_till_death <= 0: lists.KILL_entity(self.vars.name)
-            self.vars.hitbox = self.size_mod;   self.vars.conditions.counter_till_death -= 0.5;     return
-        self.kill_timer -= setup.delta; self.vars.conditions.invulenarbility -= 1
-        self.vars.pos.x += math.cos(self.vars.dir) * self.vars.move_speed * setup.delta
-        self.vars.pos.y += math.sin(self.vars.dir) * self.vars.move_speed * setup.delta
-        if (self.kill_timer <= 0): self.vars.conditions.dead = True; return
-        if ent.Collisions.colides(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox): self.vars.conditions.dead = True; return
-        if self.vars.conditions.invulenarbility <= 0:
-            if ent.Collisions.n_hitbox(self.vars.pos.x, self.vars.pos.y, self.vars.hitbox * 4, self.vars.name): self.vars.conditions.dead = True; return
+        if self.stats.conditions.dead: 
+            if self.stats.conditions.counter_till_death <= 0: lists.KILL_entity(self.stats.name)
+            self.stats.hitbox = self.stats.size_mod;   self.stats.conditions.counter_till_death -= 0.5;     return
+        self.stats.kill_timer -= setup.delta; self.stats.conditions.invulenarbility -= 1
+        self.stats.pos.x += math.cos(self.stats.dir) * self.stats.move_speed * setup.delta
+        self.stats.pos.y += math.sin(self.stats.dir) * self.stats.move_speed * setup.delta
+        if (self.stats.kill_timer <= 0): self.stats.conditions.dead = True; return
+        if ent.Collisions.colides(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox): self.stats.conditions.dead = True; return
+        if self.stats.conditions.invulenarbility <= 0:
+            if ent.Collisions.n_hitbox(self.stats.pos.x, self.stats.pos.y, self.stats.hitbox * 4, self.stats.name): self.stats.conditions.dead = True; return
     
     def draw(self):
         "Determining the correct image, position and animation of the fireball and drawing it on screen."
-        if not self.vars.conditions.dead:                  setup.screen.blit(self.image,(self.vars.pos.x-setup.camera_pos.x, self.vars.pos.y-setup.camera_pos.y));     return
-        elif not self.vars.conditions.animation_invisible: 
-            image = ent.visuals.load_image('img/fireball_/explosion' + str(5 - int(self.vars.conditions.counter_till_death)))
-            ent.visuals.blit(image, (self.vars.pos.x - self.size_mod), (self.vars.pos.y - self.size_mod), 1.000001, self.death_dir)
+        if not self.stats.conditions.dead:                  setup.screen.blit(self.image,(self.stats.pos.x-setup.camera_pos.x, self.stats.pos.y-setup.camera_pos.y));     return
+        elif not self.stats.conditions.animation_invisible: 
+            image = ent.visuals.load_image('img/fireball_/explosion' + str(5 - int(self.stats.conditions.counter_till_death)))
+            ent.visuals.blit(image, (self.stats.pos.x - self.stats.size_mod), (self.stats.pos.y - self.stats.size_mod), 1.000001, self.death_dir)
+
 
 class entity_summoner:
-    def summon_fireball__actual(n=0, posmod=(0,0), dir=0, speed=300, startXY=(0,0), owner="?", kill_timer=math.inf, optional_name="", damage_mult=1, unblock=False):
+    def summon_fireball__actual(stats_block, name="", dir=0, speed_mod=0, startXY=mthd.Position(0,0), owner="?"):
         "Actualy adding fireballs to the entitys list."
-        if optional_name != "": name = optional_name
-        else:   name = owner+"_fireball"+str(n)
-        fireball = FIRE_BALL(startXY[0]+posmod[0], startXY[1]+posmod[1], dir, name=name, speed_mod = speed, killtimer=kill_timer, invulnerability=5, owner=owner, damage_mult=damage_mult, unblock=unblock)
+        fireball = FIRE_BALL(stats_block, startXY, dir, name, speed_mod, owner=owner)
         lists.ADD_entity(name, fireball)
 
     def summon_fireball(startXY, endXY, throw_mod=0, owner="???"):
         "Summon 1 Fireball, flying towards the target Coordinates and returning the throwers new direction."
-        atan2_dir = (mthd.maths.atan3((endXY[1] - startXY[1]), (endXY[0] - startXY[0])));       dir = 90-atan2_dir
-        entity_summoner.summon_fireball__actual(0, dir=dir+throw_mod, startXY=startXY, owner=owner, kill_timer=1)
+        atan2_dir = (mthd.maths.atan3((endXY.y - startXY.y), (endXY.x - startXY.x)));       dir = 90-atan2_dir
+        name = owner+"_fireball0"
+        startXY = mthd.Position(startXY.x, startXY.y)
+        entity_summoner.summon_fireball__actual("one", name, dir+throw_mod, startXY=startXY, owner=owner)
         return mthd.find_dir.find_direction__throw(atan2_dir)
 
-    def summon_fireball_wave(pos_mod=0, dir_mod=0, speed_mod=0, time_mod=0, startXY=0, endXY=0, throw_mod=0, owner="???"):
+    def summon_fireball_wave(startXY=mthd.Position(0,0), endXY=mthd.Position(0,0), throw_mod=0, owner="???"):
         "Summons 50 Fireballs, flying towards the target Coordinates in a wave formation and returning the throwers new direction."
-        for i in range(50):
-            posmod = (random.randint(-pos_mod, pos_mod), random.randint(-pos_mod, pos_mod))
-            dmod = random.randint(-dir_mod, dir_mod)
-            smod = 300 + random.randint(-speed_mod, speed_mod)
-            tmod = 0.3+(time_mod * random.random())
-            atan2_dir = (mthd.maths.atan3((endXY[1] - startXY[1]), (endXY[0] - startXY[0])));       dir = 90-atan2_dir
-            entity_summoner.summon_fireball__actual(i, posmod, dir+dmod+throw_mod, smod, startXY, owner, kill_timer=tmod, damage_mult=3, unblock=True)
+        atan2_dir = (mthd.maths.atan3((endXY.y - startXY.y), (endXY.x - startXY.x)));       dir = 90-atan2_dir
+        for i in range(25):
+            base_pos = mthd.Position(startXY.x, startXY.y)
+            dmod = dir + random.randint(-15, 15) + throw_mod
+            smod = random.randint(-32, 32)
+            name = owner+"_fireball"+str(i)
+            entity_summoner.summon_fireball__actual("wave", name, dmod, smod, startXY=base_pos, owner=owner)
         return mthd.find_dir.find_direction__throw(atan2_dir)
+    
+    def summon_CIRCLE(n, startXY=mthd.Position(0,0), owner="???"):
+        "Summons n Fireballs, flying in all directions in a Circle Formation." 
+        for i in range(1,n+1):
+            base_pos = mthd.Position(startXY.x, startXY.y)
+            dmod = i*(360/n)
+            smod = random.randint(-15, 15)
+            name = owner+"_ULTI_fireball"+str(i)
+            entity_summoner.summon_fireball__actual("CIRCLE", name, dmod, smod, startXY=base_pos, owner=owner)
 
-    def summon_HUMANOID(name, nick, pos=None, spd=128, target_Ent=None, weapons=()):
+    def summon_HUMANOID(stats_block, name, pos=None):
         "Summons a Humanoid entity at a random Position, if pos is not given."
         if pos==None:
             coord = (random.randint(0, setup.map_width*32), random.randint(0, setup.map_height*32))
@@ -393,14 +430,5 @@ class entity_summoner:
         else:   coord=pos
         while name in lists.alive_entitys:
             name = name + str(len(lists.alive_entitys))
-        Hum = HUMANOID(name, nick, (coord[0], coord[1]), speed=spd, target=target_Ent, weapons=weapons)
+        Hum = HUMANOID(stats_block, name, (coord[0], coord[1]))
         lists.ADD_entity(name, Hum)
-    
-    def summon_CIRCLE(n, startXY=0, owner="???"):
-        "Summons n Fireballs, flying in all directions in a Circle Formation and setting the throwers direction." 
-        for i in range(1,n+1):
-            dmod = i*(360/n)
-            smod = 300 + random.randint(-15, 15)
-            tmod = 0.1 + (random.random()/10)
-            name = owner+"_ULTI_fireball"+str(i)
-            entity_summoner.summon_fireball__actual(i, dir=dmod, speed=smod, startXY=startXY, optional_name=name, owner=owner, kill_timer=tmod, damage_mult=9, unblock=True)

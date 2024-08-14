@@ -77,7 +77,7 @@ class _mouse_keyboard:
         if mode=="normal":
             rot = False
             for ent in lists.alive_entitys:
-                xy = (lists.name_dict[ent]).vars.pos.xy
+                xy = (lists.name_dict[ent]).stats.pos.xy
                 dis = math.dist(xy, (self.mouse_custom_pos.x+camera_pos.x, self.mouse_custom_pos.y+camera_pos.y))
                 if dis < 25: rot = True
             if rot:     cursor_img_draw = pygame.transform.rotate(cursor_img, 45)
@@ -87,3 +87,49 @@ class _mouse_keyboard:
             screen.blit(mouse_img, (self.mouse_custom_pos.x, self.mouse_custom_pos.y))
 
 mouse_keyboard = _mouse_keyboard()
+
+def camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y):
+    if tmp_cam_pos_x < 0:
+        tmp_cam_pos_x = 0
+    if tmp_cam_pos_y < 0:
+        tmp_cam_pos_y = 0
+    if tmp_cam_pos_x > ((map_width*32))-(screen.get_width()):
+        tmp_cam_pos_x = ((map_width*32))-(screen.get_width())
+    if tmp_cam_pos_y > ((map_height*32))-(screen.get_height()):
+        tmp_cam_pos_y = ((map_height*32))-(screen.get_height())
+    return tmp_cam_pos_x, tmp_cam_pos_y
+
+def move_camera():
+    try:
+        tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).stats.pos.x)-(screen.get_width()/2)
+        tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).stats.pos.y)-(screen.get_height()/2)
+
+        tmp_cam_pos_x, tmp_cam_pos_y = camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y)
+
+        if (lists.name_dict["PLAYER"]).stats.conditions.plop_animation<60:
+            old_cam_pos = camera_pos
+            new_cam_pos_x = tmp_cam_pos_x
+            new_cam_pos_y = tmp_cam_pos_y
+            dist = math.dist(old_cam_pos.xy, (new_cam_pos_x, new_cam_pos_y))
+            if dist>0.5: 
+                dir = (mthd.maths.atan3(new_cam_pos_x-old_cam_pos.x, old_cam_pos.y-new_cam_pos_y)-270) % 360
+                dir = mthd.maths.transform_direction(dir)
+
+                x = math.sin(math.radians(dir))
+                y = math.cos(math.radians(dir))
+
+                new_cam_pos_x = camera_pos.x
+                new_cam_pos_y = camera_pos.y
+
+                change_x = math.copysign((abs(x*dist)**0.6), x)
+                change_y = math.copysign((abs(y*dist)**0.6), y)
+
+                new_cam_pos_x += change_x
+                new_cam_pos_y += change_y
+
+                new_cam_pos_x, new_cam_pos_y = camera_positioning_at_edges(new_cam_pos_x, new_cam_pos_y)
+        else: 
+            new_cam_pos_x = tmp_cam_pos_x
+            new_cam_pos_y = tmp_cam_pos_y
+        camera_pos.xy = (new_cam_pos_x, new_cam_pos_y) 
+    except KeyError:pass

@@ -56,8 +56,8 @@ class TILES():
                     img = self.minimap_data[z,y,x]
                     if img != None: surf.blit(img, (x_offset+x*(size),  y_offset+y*(size)))
         for name in lists.alive_entitys:
-            x = (lists.name_dict[name]).vars.pos.x/32*(size)
-            y = (lists.name_dict[name]).vars.pos.y/32*(size)
+            x = (lists.name_dict[name]).stats.pos.x/32*(size)
+            y = (lists.name_dict[name]).stats.pos.y/32*(size)
             if "fireball" in name:
                 pygame.draw.circle(surf, (194,120,33), (x_offset+x, y_offset+y), size)
             elif "REDGUY" in name:
@@ -87,11 +87,11 @@ class TILES():
         with open("cmap_data.txt", "w") as data_file:
             for slice in map:
                 if layer < 2:
-                    numpy.savetxt(data_file, ["#>Layer " +str(layer)+"<#"], fmt='%s')
+                    numpy.savetxt(data_file, ["#>Map Layer " +str(layer)+"<#"], fmt='%s')
                 if layer == 2:
-                    numpy.savetxt(data_file, ["#>Layer Pathgrid<#"], fmt='%s')
+                    numpy.savetxt(data_file, ["#>Map Layer Pathgrid (template)<#"], fmt='%s')
                 if layer > 2:
-                    numpy.savetxt(data_file, ["#>Layer " +str(lists.path_dict[layer])+"<#"], fmt='%s')
+                    numpy.savetxt(data_file, ["#>Pathgrid/Pathfinding " +str(lists.path_dict[layer])+"<#"], fmt='%s')
                 numpy.savetxt(data_file, slice, fmt='%s')
                 layer += 1
 

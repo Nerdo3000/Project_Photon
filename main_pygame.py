@@ -19,6 +19,7 @@ import entitys.entity_manager as entitys;       logger.log("Entity manager Impor
 
 entitys.make_pathgrid();                        logger.log("Pathgrid Generated!")
 entitys.tick_all()
+entitys.generate_patrol_checkpoints_pathgrids()
 
 def draw_all():
     TILES.draw()
@@ -32,51 +33,6 @@ def draw_all():
     entitys.draw_all()
     if setup.mouse_keyboard.show_minimap:   TILES.draw_minimap()
 
-def camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y):
-    if tmp_cam_pos_x < 0:
-        tmp_cam_pos_x = 0
-    if tmp_cam_pos_y < 0:
-        tmp_cam_pos_y = 0
-    if tmp_cam_pos_x > ((setup.map_width*32))-(setup.screen.get_width()):
-        tmp_cam_pos_x = ((setup.map_width*32))-(setup.screen.get_width())
-    if tmp_cam_pos_y > ((setup.map_height*32))-(setup.screen.get_height()):
-        tmp_cam_pos_y = ((setup.map_height*32))-(setup.screen.get_height())
-    return tmp_cam_pos_x, tmp_cam_pos_y
-
-def move_camera():
-    try:
-        tmp_cam_pos_x = ((lists.name_dict["PLAYER"]).vars.pos.x)-(setup.screen.get_width()/2)
-        tmp_cam_pos_y = ((lists.name_dict["PLAYER"]).vars.pos.y)-(setup.screen.get_height()/2)
-
-        tmp_cam_pos_x, tmp_cam_pos_y = camera_positioning_at_edges(tmp_cam_pos_x, tmp_cam_pos_y)
-
-        if (lists.name_dict["PLAYER"]).vars.conditions.plop_animation<60:
-            old_cam_pos = setup.camera_pos
-            new_cam_pos_x = tmp_cam_pos_x
-            new_cam_pos_y = tmp_cam_pos_y
-            dist = math.dist(old_cam_pos.xy, (new_cam_pos_x, new_cam_pos_y))
-            if dist>0.5: 
-                dir = (mthd.maths.atan3(new_cam_pos_x-old_cam_pos.x, old_cam_pos.y-new_cam_pos_y)-270) % 360
-                dir = mthd.maths.transform_direction(dir)
-
-                x = math.sin(math.radians(dir))
-                y = math.cos(math.radians(dir))
-
-                new_cam_pos_x = setup.camera_pos.x
-                new_cam_pos_y = setup.camera_pos.y
-
-                change_x = math.copysign((abs(x*dist)**0.6), x)
-                change_y = math.copysign((abs(y*dist)**0.6), y)
-
-                new_cam_pos_x += change_x
-                new_cam_pos_y += change_y
-
-                new_cam_pos_x, new_cam_pos_y = camera_positioning_at_edges(new_cam_pos_x, new_cam_pos_y)
-        else: 
-            new_cam_pos_x = tmp_cam_pos_x
-            new_cam_pos_y = tmp_cam_pos_y
-        setup.camera_pos.xy = (new_cam_pos_x, new_cam_pos_y) 
-    except KeyError:pass
 
 def mode__normal():
     #pygame.draw.rect(setup.screen, (0,0,0), pygame.Rect(0, 0, setup.screen.get_width(), setup.screen.get_height()))
@@ -86,7 +42,7 @@ def mode__normal():
 
     entitys.tick_all()
 
-    move_camera()
+    setup.move_camera()
 
     draw_all()
     setup.mouse_keyboard.draw_mouse(mode="normal")
@@ -99,7 +55,7 @@ def mode__normal():
     logger.log("Alive Entitys: " + str(lists.alive_entitys))
     logger.log("Delta Time: "+str(setup.delta))
 
-def mode__pause():
+def mode__paused():
     draw_all()
     pygame.transform.grayscale(setup.screen, setup.screen)
 
@@ -165,7 +121,7 @@ while setup.running:
         elif setup.pause: setup.pause = False
 
     if setup.pause:
-        mode__pause()
+        mode__paused()
     else:
         mode__normal()
 
