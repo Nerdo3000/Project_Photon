@@ -18,6 +18,7 @@ class HUMANOID:
         self.stats.conditions.velocity_dir = mthd.Position(0,0)
         self.stats.inputs = ent.Entity_inputs()
         self.stats.pos = mthd.Position(start_modXY[0], start_modXY[1])
+        #self.target_name = "PLAYER"
 
     def tick(self):
         """Ticks the humanoid: Moving the humanoid, fireball throwing and updating variables like the animation frame and cooldown variables."""
@@ -109,10 +110,12 @@ class HUMANOID:
             try: self.patrol_point_number
             except AttributeError: self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
 
-            try: targetpos = (lists.path_dict[self.target_name], int(self.stats.pos.y//32), int(self.stats.pos.x//32))
+            try: 
+                targetpos = (lists.path_dict[self.target_name], int(self.stats.pos.y//32), int(self.stats.pos.x//32))
+                if lists.current_map[targetpos] == "!!!": self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
             except KeyError: pass
-            # print(str(self.stats.name) + " | Target: " + str(self.target_name) + " of " + str(lists.number_of_patrol_points))
-            if lists.current_map[targetpos] == "!!!": self.patrol_point_number = random.randint(0, lists.number_of_patrol_points)
+            except AttributeError: self.target_name = "Patrol Point "+str(self.patrol_point_number)
+            #print(str(self.stats.name) + " | Target: " + str(self.target_name) + " of " + str(lists.number_of_patrol_points))
             self.target_name = "Patrol Point "+str(self.patrol_point_number)
 
         if self.stats.weapons.sword:
@@ -209,7 +212,8 @@ class HUMANOID:
             owner = (lists.name_dict[name]).stats.owner
             if self.stats.conditions.ULTI_healing > 0 or (self.stats.conditions.sword_cooldown>0 and (otherdir != owndir) and not(self.stats.conditions.blocked>14) and (random.randint(1,5)!=1) and not (lists.name_dict[name]).stats.unblock):
                 amaing = ((mthd.maths.atan3((self.stats.inputs.fireball_target.x - self.stats.pos.x), (self.stats.inputs.fireball_target.y - self.stats.pos.y)))+90) + random.randint(-25, 25)  #math.degrees((setup.name_dict[name]).dir)
-                entity_summoner.summon_fireball__actual(len(lists.name_dict)+1, (0,0), amaing-90, 300, (lists.name_dict[name]).stats.pos.xy, self.stats.name, 1, optional_name="REVENGE_fireball"+str(len(lists.name_dict)+1))
+                entity_summoner.summon_fireball__actual(stats_block="one",name="REVENGE_fireball"+str(len(lists.name_dict)+1), dir=amaing-90, speed_mod=300, startXY=(lists.name_dict[name]).stats.pos, owner=self.stats.name)
+                #entity_summoner.summon_fireball__actual(len(lists.name_dict)+1, (0,0), amaing-90, 300, (lists.name_dict[name]).stats.pos.xy, self.stats.name, 1, optional_name="REVENGE_fireball"+str(len(lists.name_dict)+1))
                 (lists.name_dict[name]).stats.conditions.animation_invisible = True 
                 self.stats.conditions.blocked += 2
                 if self.stats.conditions.blocked>=16: self.stats.conditions.blocked = 16

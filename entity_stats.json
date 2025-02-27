@@ -124,7 +124,7 @@
             "IMG_PATH_body" : "img/humanoid_/body/",
             "alpha_fade" : 255,
             "weapons" : {
-                "fireball": "wave",
+                "fireball": "one",
                 "sword" : true,
                 "up" : "CIRCLE"},
             "view_distance" : 738
